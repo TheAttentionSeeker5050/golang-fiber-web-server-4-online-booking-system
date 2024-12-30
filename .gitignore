@@ -1,0 +1,5 @@
+node_modules
+go.sum
+package-lock.json
+Devnotes.md
+.env

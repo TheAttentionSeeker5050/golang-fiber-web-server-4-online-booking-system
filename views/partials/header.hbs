@@ -1,0 +1,28 @@
+<header>
+    <a href="/" id="app-logo">
+        <img src="/public/imgs/logo.svg" alt="Logo">
+    </a>
+    <button id="dropdown-menu-button" class="desktop-hidden button-transparent">
+        <img src="/public/svgs/menu.svg" alt="Menu" class="" id="menu-icon">
+        <img src="/public/svgs/close.svg" alt="Close" class="hidden" id="menu-close-icon">
+    </button>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+            
+            {{!-- if IsAuthenticated --}}
+            {{#if userAuthorized}}
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/auth/logout">Logout</a></li>
+            {{else}}
+                <li><a href="/auth/login">Login</a></li>
+                <li><a href="/auth/register">Register</a></li>
+            {{/if}}
+        </ul>
+    </nav>
+</header>
+
+<script src="/public/js/mobile-dropdown-menu-animations.js"></script>

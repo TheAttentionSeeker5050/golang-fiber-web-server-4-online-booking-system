@@ -1,0 +1,53 @@
+.button-transparent {
+    background-color: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+        background-color: #fff;
+        color: #333;
+    }
+}
+
+
+// for phones
+@media (max-width: 768px) {
+    header {
+
+        #dropdown-menu-button {
+            border: 0;
+            height: 60px;
+            padding: calc((60px - 24px) / 2);
+        }
+        
+        // make nav a grow to full height transition from nav to nav.active
+        // make it be able to see the grow transition
+        nav {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            height: 0;
+            overflow: hidden;
+            
+            // transition to grow ease in 1sec
+            transition: height 0.5s ease-in;
+            background-color: white;
+        }
+
+        nav.active {
+            height: 100%;
+            max-height: fit-content;
+            // transition to shrink ease out 1sec
+            transition: height 0.5s ease-out;
+        }
+    }
+
+}

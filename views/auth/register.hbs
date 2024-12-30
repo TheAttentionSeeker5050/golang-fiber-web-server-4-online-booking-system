@@ -1,0 +1,62 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+
+<main>
+    {{!-- display the registration form --}}
+    <section id="register-wrapper" class="auth-form-wrapper">
+        <h1>{{Title}}</h1>
+        <form action="/auth/register" method="post">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required value="{{Email}}">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required value="{{Password}}">
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" name="confirm-password" required value="{{ConfirmPassword}}">
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+            <p>Already registered? <a href="/login">Login</a></p>
+        </form>
+    </section>
+
+    {{!-- make a login with oauth providers such as Google, Microsoft or Apple --}}
+    <section id="oauth-providers" class="oauth-providers">
+        <h2>Use your Account:</h2>
+        <a href="/auth/google" class="btn btn-google">Google</a>
+        <a href="/auth/microsoft" class="btn btn-microsoft">Microsoft</a>
+        <a href="/auth/apple" class="btn btn-apple">Apple</a>
+    </section>
+
+    {{!-- display form errors --}}
+    <section id="form-errors" class="form-errors">
+        <ul>
+            {{!-- errors convert stringified array to array --}}
+            {{#each Errors}}
+                <li>{{this}}</li>
+            {{/each}}
+        </ul>
+    </section>
+
+    {{!-- display success message --}}
+    <section id="success-message" class="success-message">
+        {{#if Success}}
+            <p>User account created successfully</p>
+            <p>Redirecting to login page...</p>
+            <script>
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 3000);
+            </script>
+        {{/if}}
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+<script src="/public/js/index.js"></script>
+
+{{> 'partials/footer' }}
