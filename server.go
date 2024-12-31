@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"example/web-server/config"
 	"example/web-server/controllers"
@@ -57,6 +58,11 @@ func main() {
 	authGroup := app.Group("/auth")
 	routers.AuthRoutes(authGroup)
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	// fmt.Println(app.Stack())
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Listen(string(":" + port)))
 }
