@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"example/web-server/config"
@@ -11,7 +10,6 @@ import (
 	"example/web-server/routers"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/template/handlebars/v2"
 )
 
@@ -25,6 +23,9 @@ func main() {
 
 	// call the defer function to close the mongo client connection
 	config.CloseMongoClientConnection(mongoClient)
+
+	// call the InitOAuth function from the config package
+	config.InitGoogleConfig()
 
 	// Create a new engine
 	engine := handlebars.New("./views", ".hbs")
@@ -43,11 +44,6 @@ func main() {
 		ViewsLayout: data.LAYOUT_PATH,
 	})
 
-	// use cors
-	app.Use(cors.New(cors.Config{
-		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
-	}))
-
 	// add middleware that validates cookie and flags the user for authentication valid or not so we can render custom things from the controllers routes contents
 	app.Use(middlewares.UserIsAuthorized)
 
@@ -61,6 +57,6 @@ func main() {
 	authGroup := app.Group("/auth")
 	routers.AuthRoutes(authGroup)
 
-	fmt.Println(app.Stack())
+	// fmt.Println(app.Stack())
 	log.Fatal(app.Listen(":8080"))
 }

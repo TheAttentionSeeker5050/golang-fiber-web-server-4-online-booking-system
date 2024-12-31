@@ -54,4 +54,9 @@ func AuthRoutes(group fiber.Router) {
 
 		return utils.CustomRenderTemplate(c, "auth/logout-success", *argumentsMap)
 	})
+
+	// Oauth providers
+	group.Get("/google", controllers.SignInWithGoogleController)
+	group.Get("/google/callback", controllers.SignWithGoogleCallbackController)
+	group.Get("/google/success", controllers.SignWithGoogleSuccessController)
 }

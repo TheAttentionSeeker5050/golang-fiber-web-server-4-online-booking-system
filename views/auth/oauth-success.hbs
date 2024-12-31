@@ -1,0 +1,26 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+
+<main>
+    {{!-- display the logout form --}}
+    <section id="logout-wrapper" class="auth-form-wrapper">
+        <h1>{{Title}}</h1>
+        <p>
+            Successfully logged in with {{provider}}.
+        </p>
+        <p>
+            Will redirect to home in 3 seconds.
+        </p>
+        <script>
+            setTimeout(function() {
+                window.location.href = '/';
+            }, 3000);
+        </script>
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+<script src="/public/js/index.js"></script>
+
+{{> 'partials/footer' }}

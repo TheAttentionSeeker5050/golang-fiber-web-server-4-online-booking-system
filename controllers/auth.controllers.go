@@ -2,15 +2,24 @@ package controllers
 
 // the controllers for the auth routes
 import (
+	"context"
+	"encoding/json"
 	"example/web-server/config"
 	"example/web-server/data"
+	"example/web-server/models"
 	"example/web-server/utils"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var stateCache = sync.Map{}
 
 // AuthLoginController handles the login form submission
 func AuthLoginController(c *fiber.Ctx) error {
@@ -63,16 +72,8 @@ func AuthLoginController(c *fiber.Ctx) error {
 
 	// make a cookie with auth to true for now, as we will use something secure later
 	// it should be http only and secure as we don't want to expose it to the client
-	c.Cookie(&fiber.Cookie{
-		Name:     "Authenticated",
-		Value:    "true",
-		Secure:   true,
-		HTTPOnly: true,
-		// expires in 1 hour in data type time.Time and using our data.GetCookieExpirationTime() function
-		Expires:     time.Now().Add(data.GetCookieExpirationTime() * time.Second),
-		SameSite:    "Strict",
-		SessionOnly: true,
-	})
+	// use the utils function to add the cookie
+	utils.AddToCookies(c, "Authenticated", "true", fiber.CookieSameSiteStrictMode)
 
 	// keep the same /login page but with a success flag
 	// do the same from now on
@@ -96,33 +97,20 @@ func AuthRegisterController(c *fiber.Ctx) error {
 		return utils.CustomRenderTemplate(c, "auth/register", data.GetFiberRenderMappingsAuthForms(email, password, nil, false))
 	}
 
-	// get the mongo client
-	mongoClient := config.GetMongoClient()
-	if mongoClient == nil {
-		return utils.CustomRenderTemplate(c, "auth/register", data.GetFiberRenderMappingsAuthForms(email, password, nil, false))
-	}
-
-	// now we will save the user to the database
-	// get the database and collection
-	clientCollection, err := config.GetMongoCollection(mongoClient, "users")
+	mongoClient, userMongoCollection, err := models.GetUserCollection()
 	if err != nil {
 		return utils.CustomRenderTemplate(c, "auth/register", data.GetFiberRenderMappingsAuthForms(email, password, nil, false))
 	}
 
-	// check if the user already exists with the same email
-	err = clientCollection.FindOne(c.Context(), fiber.Map{"email": email}).Err()
-	if err == nil {
-		return utils.CustomRenderTemplate(c, "auth/register", data.GetFiberRenderMappingsAuthForms(email, password, &[]string{"User already exists"}, false))
-	}
-
-	// insert the user into the database
-	_, err = clientCollection.InsertOne(c.Context(), fiber.Map{
-		"email":        email,
-		"passwordHash": string(hash),
+	models.SaveUserToDBUsingLocalAuthProvider(c, userMongoCollection, models.User{
+		ID:           uuid.New().String(),
+		Email:        email,
+		PasswordHash: string(hash),
+		AuthProvider: "Local",
+		Picture:      "",
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	})
-	if err != nil {
-		return utils.CustomRenderTemplate(c, "auth/register", data.GetFiberRenderMappingsAuthForms(email, password, nil, false))
-	}
 
 	// close the mongo client connection
 	config.CloseMongoClientConnection(mongoClient)
@@ -133,17 +121,119 @@ func AuthRegisterController(c *fiber.Ctx) error {
 
 // AuthLogoutController handles the logout form submission
 func AuthLogoutController(c *fiber.Ctx) error {
-	// get the cookie before deleting it
-
-	// delete the cookie
-	c.Cookie(&fiber.Cookie{
-		Name:     "Authenticated",
-		Value:    "",
-		Secure:   true,
-		HTTPOnly: true,
-		Expires:  time.Now().Add(-1 * time.Hour),
-		SameSite: "Strict",
-	})
+	// delete the cookie using the utils function
+	// utils.DeleteCookie(c, "Authenticated")
+	utils.DeleteCookie(c, "Authenticated")
+	utils.DeleteCookie(c, "AccessToken")
+	utils.DeleteCookie(c, "TokenProvider")
 
 	return c.Redirect("/auth/logout-success")
+}
+
+// Oauth2 providers controllers
+func SignInWithGoogleController(c *fiber.Ctx) error {
+
+	// generate unique state code
+	var state string = uuid.New().String()
+	authCodeUrl := config.OauthConfig.GoogleLoginConfig.AuthCodeURL(state)
+
+	c.Status(fiber.StatusSeeOther)
+	c.Redirect(authCodeUrl)
+
+	return c.JSON(authCodeUrl)
+}
+
+func SignWithGoogleCallbackController(c *fiber.Ctx) error {
+	// to prevent double execution of the callback, we will check the state
+	state := c.Query("state")
+	if state == "" {
+		return c.SendString("Invalid state parameter")
+	}
+
+	// Mark the state as used
+	stateCache.Store(state, true)
+
+	code := c.Query("code")
+
+	if code == "" {
+		return c.SendString("Invalid code parameter")
+	}
+
+	googleCon := config.InitGoogleConfig()
+
+	token, err := googleCon.Exchange(context.Background(), code)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Code-Token Exchange Failed")
+	}
+
+	// Fetch user info
+	userInfoURL := "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken
+	response, err := http.Get(userInfoURL)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to fetch user info")
+	}
+
+	defer response.Body.Close()
+
+	// _, err = ioutil.ReadAll(response.Body)
+	userData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to read user info")
+	}
+
+	// add the token to cookies
+	utils.AddToCookies(c, "AccessToken", token.AccessToken, fiber.CookieSameSiteLaxMode)
+	utils.AddToCookies(c, "TokenProvider", "Google", fiber.CookieSameSiteLaxMode)
+
+	// get user email from the token and save it to the database if it doesn't exist
+	// get the mongo client
+	mongoClient, userMongoCollection, err := models.GetUserCollection()
+
+	// if the mongo client is nil
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to get user collection")
+	}
+
+	userDataMap := fiber.Map{}
+	err = json.Unmarshal(userData, &userDataMap)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to unmarshal user data")
+	}
+
+	// get the user by email
+	userFromDB := models.User{}
+	err = userMongoCollection.FindOne(c.Context(), fiber.Map{
+		"email": userDataMap["email"],
+	}).Decode(&userFromDB) // this should return an error if the user is not found
+	if err != nil {
+		// save the user to the database
+		err = models.SaveUserToDBUsingGoogleProvider(c, userMongoCollection, &models.GoogleClaims{
+			ID:            userDataMap["id"].(string),
+			Email:         userDataMap["email"].(string),
+			EmailVerified: true,
+			Sub:           userDataMap["id"].(string),
+			Name:          userDataMap["name"].(string),
+			Picture:       userDataMap["picture"].(string),
+		}) // this should return an error if the user could not be saved
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).SendString("Failed to save user to database")
+		}
+	}
+
+	// close the mongo client connection
+	config.CloseMongoClientConnection(mongoClient)
+
+	// redirect to the success page
+	return c.Redirect("/auth/google/success")
+}
+
+func SignWithGoogleSuccessController(c *fiber.Ctx) error {
+	// make a fiber mapping for displaying the success page template
+	argumentsMap := &fiber.Map{
+		"Title":    "Google Login Success",
+		"Provider": "Google",
+	}
+
+	// render using utility function
+	return utils.CustomRenderTemplate(c, "auth/oauth-success", *argumentsMap)
 }
