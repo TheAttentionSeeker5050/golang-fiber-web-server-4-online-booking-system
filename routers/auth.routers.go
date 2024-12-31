@@ -47,7 +47,7 @@ func AuthRoutes(group fiber.Router) {
 	})
 
 	// Logout route (can include logout logic later)
-	group.Get("/logout-success", func(c *fiber.Ctx) error {
+	group.Get("/logout/success", func(c *fiber.Ctx) error {
 		argumentsMap := &fiber.Map{
 			"Title": "Logout Success",
 		}
@@ -59,4 +59,16 @@ func AuthRoutes(group fiber.Router) {
 	group.Get("/google", controllers.SignInWithGoogleController)
 	group.Get("/google/callback", controllers.SignWithGoogleCallbackController)
 	group.Get("/google/success", controllers.SignWithGoogleSuccessController)
+
+	// TODO: microsoft and apple oauth provider routes
+	group.Get("/microsoft", func(c *fiber.Ctx) error {
+		return utils.CustomRenderTemplate(c, "todo", fiber.Map{
+			"Title": "Login with Microsoft",
+		})
+	})
+	group.Get("/apple", func(c *fiber.Ctx) error {
+		return utils.CustomRenderTemplate(c, "todo", fiber.Map{
+			"Title": "Login with Apple",
+		})
+	})
 }

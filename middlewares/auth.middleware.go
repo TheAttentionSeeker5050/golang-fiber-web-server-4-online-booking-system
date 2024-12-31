@@ -2,8 +2,7 @@ package middlewares
 
 import (
 	"example/web-server/data"
-	"example/web-server/models"
-	"math/rand"
+	"example/web-server/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,26 +13,33 @@ func UserIsAuthorized(c *fiber.Ctx) error {
 	provider := c.Cookies("TokenProvider", "")
 	token := c.Cookies("AccessToken", "")
 
+	c.Locals("userAuthorized", false)
+
 	// if the provider of the token is Google
 	if provider == "Google" {
 		// verify the token
-		claims, err := models.VerifyGoogleToken(token)
-		if err != nil {
-
-			// if the token is invalid, check if the route is public
-			if !data.IsPublicRoute(c.Path()) {
-				// deny access
-				return c.SendStatus(fiber.StatusUnauthorized)
+		claims, err := utils.VerifyGoogleToken(token)
+		if err == nil {
+			// add user id to local context, this will only be available in this request, and will not be passed to the next request or the template
+			c.Locals("userID", claims.ID)
+			c.Locals("userAuthorized", true)
+		}
+	} else if provider == "Local" {
+		// verify the token
+		valid, err := utils.VerifyLocalAuthJWTToken(token)
+		if err == nil && valid {
+			claims, err := utils.GetLocalAuthJWTTokenClaims(token)
+			if err == nil {
+				// add user id to local context, this will only be available in this request, and will not be passed to the next request or the template
+				c.Locals("userID", claims.ID)
+				c.Locals("userAuthorized", true)
 			}
 		}
+	}
 
-		// add user id to local context, this will only be available in this request, and will not be passed to the next request or the template
-		c.Locals("userID", claims.ID)
-		c.Locals("userAuthorized", true)
-
-	} else {
-		// Set a local variable for the request context
-		c.Locals("userAuthorized", rand.Intn(2) == 1)
+	if !data.IsPublicRoute(c.Path()) && c.Locals("userAuthorized") == false {
+		// deny access
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
 	// Go to next middleware:

@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"example/web-server/config"
+	"example/web-server/utils"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,7 +13,7 @@ import (
 type User struct {
 	ID           string `json:"id" bson:"_id"`
 	Email        string `json:"email" bson:"email"`
-	PasswordHash string `json:"password" bson:"password"`
+	PasswordHash string `json:"passwordHash" bson:"passwordHash"`
 	AuthProvider string `json:"authProvider" bson:"authProvider"`
 	Picture      string `json:"picture"`
 	CreatedAt    time.Time
@@ -37,7 +38,7 @@ func GetUserCollection() (*mongo.Client, *mongo.Collection, error) {
 	return mongoClient, clientCollection, nil
 }
 
-func SaveUserToDBUsingGoogleProvider(c *fiber.Ctx, userCollection *mongo.Collection, claims *GoogleClaims) error {
+func SaveUserToDBUsingGoogleProvider(c *fiber.Ctx, userCollection *mongo.Collection, claims *utils.GoogleClaims) error {
 	// check if the user already exists with the same email
 	err := userCollection.FindOne(c.Context(), claims.Email).Err()
 	if err == nil {

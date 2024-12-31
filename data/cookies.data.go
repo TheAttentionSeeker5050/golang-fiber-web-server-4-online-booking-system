@@ -1,8 +1,11 @@
 package data
 
-import "time"
+import (
+	"github.com/gofiber/fiber/v2"
+)
 
-// GetCookieExpirationTime returns time in seconds
-func GetCookieExpirationTime() time.Duration {
-	return time.Duration(60 * 60 * 24 * 7)
-}
+// Constants
+const COOKIE_SAME_SITE_LAX = fiber.CookieSameSiteLaxMode
+const COOKIE_SAME_SITE_STRICT = fiber.CookieSameSiteStrictMode
+const COOKIE_SECURE = true
+const COOKIE_HTTP_ONLY = true

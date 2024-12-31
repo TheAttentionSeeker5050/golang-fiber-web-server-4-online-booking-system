@@ -54,7 +54,7 @@ func GetMongoCollection(mongoClient *mongo.Client, collectionName string) (*mong
 
 func CloseMongoClientConnection(client *mongo.Client) {
 	defer func() {
-		log.Println("Closing MongoDB connection")
+		// log.Println("Closing MongoDB connection")
 		if err := client.Disconnect(context.Background()); err != nil {
 			panic(err)
 		}

@@ -1,21 +1,23 @@
 package data
 
+import "regexp"
+
 // list of public routes
 var publicRoutes = []string{
-	"/auth/login",
-	"/auth/register",
-	"/auth/logout",
-	"/",
-	"/auth/google",
-	"/auth/google/callback",
-	"/contact",
-	"about",
+	// all the routes starting with /auth and /auth/ should be public
+	"/auth/*",
+	// these should be exact match: /, /contact, /about
+	"^/$",
+	"^/contact$",
+	"^/about$",
 }
 
 // function verify if the route is public
 func IsPublicRoute(route string) bool {
 	for _, publicRoute := range publicRoutes {
-		if publicRoute == route {
+		// make the condition be regex using regex comparison
+		regexpRoute := regexp.MustCompile(publicRoute)
+		if regexpRoute.MatchString(route) {
 			return true
 		}
 	}
