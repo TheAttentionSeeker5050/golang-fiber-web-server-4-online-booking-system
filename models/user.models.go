@@ -144,3 +144,15 @@ func GetUserData(c *fiber.Ctx, userCollection *mongo.Collection, userID string) 
 
 	return &user, nil
 }
+
+func GetUserPasswordHash(c *fiber.Ctx, userCollection *mongo.Collection, userID string) (string, error) {
+	var user User
+
+	// get the user by email
+	err := userCollection.FindOne(c.Context(), bson.M{"_id": userID}).Decode(&user)
+	if err != nil {
+		return "", errors.New("User not found")
+	}
+
+	return user.PasswordHash, nil
+}

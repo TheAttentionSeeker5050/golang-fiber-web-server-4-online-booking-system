@@ -22,12 +22,15 @@ func CustomRenderTemplate(c *fiber.Ctx, templateName string, pageContext fiber.M
 
 // the path to the layout file
 // errorMsg is optional
-func GetFiberRenderMappingsAuthForms(email string, password string, errorMsgs *[]string, success bool) fiber.Map {
+func GetFiberRenderMappingsAuthForms(email string, password string, FirstName string, LastName string, phoneNumber string, errorMsgs *[]string, success bool) fiber.Map {
 	var resultFiberMap fiber.Map = fiber.Map{
-		"Errors":   []string{},
-		"Email":    email,
-		"Password": password,
-		"Success":  success,
+		"Errors":      []string{},
+		"Email":       email,
+		"FirstName":   FirstName,
+		"LastName":    LastName,
+		"PhoneNumber": phoneNumber,
+		"Password":    password,
+		"Success":     success,
 	}
 
 	// if the size of the errorMsgs is 0
