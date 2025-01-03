@@ -3,6 +3,7 @@ package controllers
 // the controllers for the auth routes
 import (
 	"example/web-server/config"
+	"example/web-server/data"
 	"example/web-server/models"
 	"example/web-server/utils"
 	"sync"
@@ -66,7 +67,7 @@ func AuthLoginController(c *fiber.Ctx) error {
 
 	// add token and provider to the cookies
 	utils.AddToCookies(c, "AccessToken", token, fiber.CookieSameSiteStrictMode)
-	utils.AddToCookies(c, "TokenProvider", "Local", fiber.CookieSameSiteStrictMode)
+	utils.AddToCookies(c, "TokenProvider", data.AUTH_PROVIDER_LOCAL, fiber.CookieSameSiteStrictMode)
 
 	// keep the same /login page but with a success flag
 	// do the same from now on
@@ -78,6 +79,9 @@ func AuthRegisterController(c *fiber.Ctx) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 	confirmPassword := c.FormValue("confirm-password")
+	firstName := c.FormValue("first-name")
+	lastName := c.FormValue("last-name")
+	phoneNumber := c.FormValue("phone-number")
 
 	// if passwords are the same
 	if password != confirmPassword {
@@ -99,10 +103,13 @@ func AuthRegisterController(c *fiber.Ctx) error {
 		ID:           uuid.New().String(),
 		Email:        email,
 		PasswordHash: string(hash),
-		AuthProvider: "Local",
+		AuthProvider: data.AUTH_PROVIDER_LOCAL,
 		Picture:      "",
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
+		FirstName:    firstName,
+		LastName:     lastName,
+		Phone:        phoneNumber,
 	})
 
 	// close the mongo client connection

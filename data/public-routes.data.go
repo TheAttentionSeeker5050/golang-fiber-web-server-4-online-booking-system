@@ -10,6 +10,8 @@ var publicRoutes = []string{
 	"^/$",
 	"^/contact$",
 	"^/about$",
+	// public routes
+	"/public/*",
 }
 
 // function verify if the route is public

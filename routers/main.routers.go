@@ -36,17 +36,8 @@ func HomeRoutes(group fiber.Router) {
 		})
 	})
 
-	// Profile page route
-	group.Get("/profile", func(c *fiber.Ctx) error {
-		argumentsMap := &fiber.Map{
-			"Title": "Profile",
-		}
-
-		// add the Authenticated flag to the argumentsMap using http headers
-		(*argumentsMap)["IsAuthenticated"] = string(c.Request().Header.Peek("Authenticated")) == "true"
-
-		return utils.CustomRenderTemplate(c, "auth/profile", *argumentsMap)
-	})
+	// // Profile page route
+	// group.Get("/profile", controllers.ViewProfileDataController)
 
 	// Dashboard page route
 	group.Get("/dashboard", func(c *fiber.Ctx) error {
@@ -59,5 +50,4 @@ func HomeRoutes(group fiber.Router) {
 
 		return utils.CustomRenderTemplate(c, "dashboard", *argumentsMap)
 	})
-
 }

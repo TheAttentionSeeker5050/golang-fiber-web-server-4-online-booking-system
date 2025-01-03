@@ -1,0 +1,49 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+
+<main>
+    <section id="top-profile-wrapper" class="">
+        <h1>{{Title}}</h1>
+        {{!-- <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Earum corrupti aliquid, voluptatem autem iusto cupiditate eius iste. Vel, ipsum aliquid!</p> --}}
+
+        {{!-- list to display the user data: firstName, lastName, password (hidden with *), email, phone --}}
+        <ul>
+            <li>
+                <strong>First Name:</strong> {{User.FirstName}}
+            </li>
+            <li>
+                <strong>Last Name:</strong> {{User.LastName}}
+            </li>
+
+            {{!-- if provider is local display the password list element, otherwise say login with [provider] --}}
+            {{#if User.Provider}}
+                <li>
+                    <strong>Signed in with:</strong> {{User.Provider}}
+                </li>
+            {{else}}
+                <li>
+                    <span><strong>Password:</strong> ********</span>
+                    <span><a href="/profile/edit-password" class="btn">Change Password</a></span>
+                </li>
+            {{/if}}
+            <li>
+                <strong>Email:</strong> {{User.Email}}
+            </li>
+            <li>
+                <strong>Phone:</strong> {{User.Phone}}
+            </li>                
+        </ul>
+        <a href="/profile/edit" class="btn">Edit Profile</a>
+    </section>
+    <section id="error-section" class="error-section">
+        {{#if Error}}
+            <p>{{Error}}</p>
+        {{/if}}
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+<script src="/public/js/index.js"></script>
+
+{{> 'partials/footer' }}

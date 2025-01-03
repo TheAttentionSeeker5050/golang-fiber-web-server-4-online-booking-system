@@ -67,7 +67,7 @@ func SignWithGoogleCallbackController(c *fiber.Ctx) error {
 
 	// add the token to cookies
 	utils.AddToCookies(c, "AccessToken", token.AccessToken, data.COOKIE_SAME_SITE_LAX)
-	utils.AddToCookies(c, "TokenProvider", "Google", data.COOKIE_SAME_SITE_LAX)
+	utils.AddToCookies(c, "TokenProvider", data.AUTH_PROVIDER_GOOGLE, data.COOKIE_SAME_SITE_LAX)
 
 	// get user email from the token and save it to the database if it doesn't exist
 	// get the mongo client
@@ -115,7 +115,7 @@ func SignWithGoogleSuccessController(c *fiber.Ctx) error {
 	// make a fiber mapping for displaying the success page template
 	argumentsMap := &fiber.Map{
 		"Title":    "Google Login Success",
-		"Provider": "Google",
+		"Provider": data.AUTH_PROVIDER_GOOGLE,
 	}
 
 	// render using utility function

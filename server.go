@@ -57,6 +57,8 @@ func main() {
 	routers.APIRoutes(apiGroup)
 	authGroup := app.Group("/auth")
 	routers.AuthRoutes(authGroup)
+	profileGroup := app.Group("/profile")
+	routers.ProfileRoutes(profileGroup)
 
 	port := os.Getenv("PORT")
 	if port == "" {

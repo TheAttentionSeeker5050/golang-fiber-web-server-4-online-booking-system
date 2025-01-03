@@ -1,0 +1,34 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+
+<main>
+    <section id="top-profile-wrapper" class="">
+        <h1>{{Title}}</h1>
+        <form method="POST" action="/profile/edit">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" value="{{User.FirstName}}">
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" value="{{User.LastName}}" >
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone-number" name="phone-number" value="{{User.Phone}}">
+            </div>
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+    </section>
+    <section id="error-section" class="error-section">
+        {{#each Errors}}
+            <li>{{this}}</li>
+        {{/each}}
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+<script src="/public/js/index.js"></script>
+
+{{> 'partials/footer' }}

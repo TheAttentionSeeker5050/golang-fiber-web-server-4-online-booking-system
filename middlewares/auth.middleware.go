@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"example/web-server/controllers"
 	"example/web-server/data"
 	"example/web-server/utils"
 
@@ -16,7 +17,7 @@ func UserIsAuthorized(c *fiber.Ctx) error {
 	c.Locals("userAuthorized", false)
 
 	// if the provider of the token is Google
-	if provider == "Google" {
+	if provider == data.AUTH_PROVIDER_GOOGLE {
 		// verify the token
 		claims, err := utils.VerifyGoogleToken(token)
 		if err == nil {
@@ -24,7 +25,7 @@ func UserIsAuthorized(c *fiber.Ctx) error {
 			c.Locals("userID", claims.ID)
 			c.Locals("userAuthorized", true)
 		}
-	} else if provider == "Local" {
+	} else if provider == data.AUTH_PROVIDER_LOCAL {
 		// verify the token
 		valid, err := utils.VerifyLocalAuthJWTToken(token)
 		if err == nil && valid {
@@ -39,7 +40,7 @@ func UserIsAuthorized(c *fiber.Ctx) error {
 
 	if !data.IsPublicRoute(c.Path()) && c.Locals("userAuthorized") == false {
 		// deny access
-		return c.SendStatus(fiber.StatusUnauthorized)
+		return controllers.UnauthorizedErrorPageController(c)
 	}
 
 	// Go to next middleware:

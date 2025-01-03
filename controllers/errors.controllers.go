@@ -34,6 +34,9 @@ func RouterErrorCallback(ctx *fiber.Ctx, err error) error {
 	if code == 404 {
 		// use handlerbars template to render 404 page
 		return NotFoundErrorPageController(ctx)
+	} else if code == 401 {
+		// use handlerbars template to render 401 page
+		return UnauthorizedErrorPageController(ctx)
 	}
 
 	// return handlebars error page in /views/error using the error message as page argument
@@ -46,6 +49,13 @@ func NotFoundErrorPageController(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusNotFound).Render("404", fiber.Map{
 		"Title":     "404 Not Found",
 		"Paragraph": "The page you are looking for does not exist.",
+	}, data.LAYOUT_PATH)
+}
+
+func UnauthorizedErrorPageController(ctx *fiber.Ctx) error {
+	return ctx.Status(fiber.StatusUnauthorized).Render("401", fiber.Map{
+		"Title":     "Unauthorized",
+		"Paragraph": "You are not authorized to access this page.",
 	}, data.LAYOUT_PATH)
 }
 
