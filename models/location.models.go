@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"example/web-server/config"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Location is a struct that represents the location of an organization
@@ -26,18 +28,21 @@ import (
 // - phone: string // this is the phone number of the location
 // - OwnerID: string // this is the owner id of the location
 type Location struct {
-	ID        string    `json:"id" bson:"_id"`
-	Name      string    `json:"name" bson:"name"`
-	Address   string    `json:"address" bson:"address"`
-	City      string    `json:"city" bson:"city"`
-	State     string    `json:"state" bson:"state"`
-	Zip       string    `json:"zip" bson:"zip"`
-	Country   string    `json:"country" bson:"country"`
-	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`
-	Email     string    `json:"email" bson:"email"`
-	Phone     string    `json:"phone" bson:"phone"`
-	OwnerID   string    `json:"ownerId" bson:"ownerId"`
+	ID               string            `json:"id" bson:"_id"`
+	Name             string            `json:"name" bson:"name"`
+	Address          string            `json:"address" bson:"address"`
+	City             string            `json:"city" bson:"city"`
+	State            string            `json:"state" bson:"state"`
+	Zip              string            `json:"zip" bson:"zip"`
+	Country          string            `json:"country" bson:"country"`
+	CreatedAt        time.Time         `json:"createdAt" bson:"createdAt"`
+	UpdatedAt        time.Time         `json:"updatedAt" bson:"updatedAt"`
+	Email            string            `json:"email" bson:"email"`
+	Phone            string            `json:"phone" bson:"phone"`
+	OwnerID          string            `json:"ownerID" bson:"ownerID"`
+	OrganizationID   string            `json:"organizationID" bson:"organizationID"`
+	Organization     *Organization     `json:"organization" bson:"organization"`
+	BookingResources []BookingResource `json:"bookingResources" bson:"bookingResources"`
 }
 
 // function to get the location collection
@@ -112,20 +117,37 @@ func DeleteLocation(c *fiber.Ctx, organizationCollection *mongo.Collection, id s
 }
 
 // - GetLocations with filters, pagination, and sorting for the user
-func GetLocations(c *fiber.Ctx, organizationCollection *mongo.Collection, ownerID string, filters map[string]interface{}, page int, limit int, sort string) ([]Location, error) {
-	// get the locations from the database
-	var locations []Location
+func GetLocations(c *fiber.Ctx, organizationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sort string, sortOrder string) ([]Location, error) {
+	if filters == nil {
+		filters = map[string]string{}
+	}
+
 	// add owner id to the filters
-	filters["ownerId"] = ownerID
-	cursor, err := organizationCollection.Find(c.Context(), filters)
+	filters["ownerID"] = ownerID
+
+	// make the *options.FindOptions object
+	var getOptions *options.FindOptions = options.Find()
+
+	// if the page is nil, set it to 1 and reference it to the page argument
+	getOptions.SetSkip(offset)
+	getOptions.SetLimit(limit)
+
+	// find the locations, filter, sort, and paginate
+	cursor, err := organizationCollection.Find(context.TODO(), filters, getOptions)
 	if err != nil {
 		return nil, errors.New("Error getting locations")
 	}
 
+	// get the locations from the database
+	var locations []Location
+
 	// iterate over the cursor and decode the data
-	if err = cursor.All(c.Context(), &locations); err != nil {
+	err = cursor.All(context.TODO(), &locations)
+	if err != nil {
 		return nil, errors.New("Error getting locations")
 	}
+
+	cursor.Close(context.TODO())
 
 	return locations, nil
 }

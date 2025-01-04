@@ -18,6 +18,7 @@ func GetMongoClient() *mongo.Client {
 	uri := os.Getenv("MONGODB_URI")
 	if uri == "" {
 		log.Fatal("MONGODB_URI is not set in .env file")
+		return nil
 	}
 
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
@@ -26,12 +27,14 @@ func GetMongoClient() *mongo.Client {
 	// Create a new client and connect to the server
 	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
-		panic(err)
+		// panic(err)
+		return nil
 	}
 
 	// Send a ping to confirm a successful connection
 	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Err(); err != nil {
-		panic(err)
+		// panic(err)
+		return nil
 	}
 
 	return client

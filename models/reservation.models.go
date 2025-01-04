@@ -1,5 +1,17 @@
 package models
 
+import (
+	"context"
+	"errors"
+	"example/web-server/config"
+	"fmt"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
 // Reservation is a struct that represents the reservation of a booking resource
 // mongodb collection name: reservations
 // The properties of these are
@@ -14,16 +26,36 @@ package models
 // - CreatedAt: time.Time
 // - UpdatedAt: time.Time
 type Reservation struct {
-	ID                 string `json:"id" bson:"_id"`
-	BookingResourceID  string `json:"bookingResourceId" bson:"bookingResourceId"`
-	AssistantEmail     string `json:"assistantEmail" bson:"assistantEmail"`
-	AssistantPhone     string `json:"assistantPhone" bson:"assistantPhone"`
-	AssistantFirstName string `json:"assistantFirstName" bson:"assistantFirstName"`
-	AssistantLastName  string `json:"assistantLastName" bson:"assistantLastName"`
-	StartDate          string `json:"startDate" bson:"startDate"`
-	EndDate            string `json:"endDate" bson:"endDate"`
-	CreatedAt          string `json:"createdAt" bson:"createdAt"`
-	UpdatedAt          string `json:"updatedAt" bson:"updatedAt"`
+	ID                 string           `json:"id" bson:"_id"`
+	OwnerID            string           `json:"ownerID" bson:"ownerID"`
+	BookingResourceID  string           `json:"bookingResourceID" bson:"bookingResourceID"`
+	BookingResource    *BookingResource `json:"bookingResource" bson:"bookingResource"`
+	AssistantEmail     string           `json:"assistantEmail" bson:"assistantEmail"`
+	AssistantPhone     string           `json:"assistantPhone" bson:"assistantPhone"`
+	AssistantFirstName string           `json:"assistantFirstName" bson:"assistantFirstName"`
+	AssistantLastName  string           `json:"assistantLastName" bson:"assistantLastName"`
+	StartDate          time.Time        `json:"startDate" bson:"startDate"`
+	EndDate            time.Time        `json:"endDate" bson:"endDate"`
+	CreatedAt          time.Time        `json:"createdAt" bson:"createdAt"`
+	UpdatedAt          time.Time        `json:"updatedAt" bson:"updatedAt"`
+}
+
+func GetReservationCollection() (*mongo.Client, *mongo.Collection, error) {
+	// Assuming you use a database connection named `db`
+	// get the mongo client
+	mongoClient := config.GetMongoClient()
+	if mongoClient == nil {
+		return nil, nil, errors.New("Mongo client is nil")
+	}
+
+	// now we will save the reservation to the database
+	// get the database and collection
+	clientCollection, err := config.GetMongoCollection(mongoClient, "reservations")
+	if err != nil {
+		return nil, nil, errors.New("Error getting collection")
+	}
+
+	return mongoClient, clientCollection, nil
 }
 
 // The crud operations for the reservation model
@@ -48,6 +80,37 @@ func DeleteReservation(id string) error {
 }
 
 // - GetReservations with filters, pagination, and sorting for the user
-func GetReservations(bookingResourceID string, filters map[string]interface{}, page int, limit int, sort string) ([]Reservation, error) {
-	return nil, nil
+func GetReservations(c *fiber.Ctx, reservationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sort string, sortOrder string) ([]Reservation, error) {
+	if filters == nil {
+		filters = map[string]string{}
+	}
+
+	// create a filter for the ownerID
+	filters["ownerID"] = ownerID
+
+	// make the *options.FindOptions object
+	var getOptions *options.FindOptions = options.Find()
+
+	// if the page is nil, set it to 1 and reference it to the page argument
+	getOptions.SetSkip(offset)
+	getOptions.SetLimit(limit)
+
+	// get the reservations, filter, sort, and paginate
+	cursor, err := reservationCollection.Find(context.TODO(), filters, getOptions)
+	if err != nil {
+		fmt.Println("Error getting reservations: ", err)
+		fmt.Println("Error is on reservationCollection.Find")
+		return nil, errors.New("Error getting reservations")
+	}
+
+	// get the reservations from the database
+	var reservations []Reservation
+	err = cursor.All(context.TODO(), &reservations)
+	if err != nil {
+		return nil, errors.New("Error getting reservations")
+	}
+
+	cursor.Close(context.TODO())
+
+	return reservations, nil
 }

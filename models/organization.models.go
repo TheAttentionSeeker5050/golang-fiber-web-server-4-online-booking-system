@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"example/web-server/config"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // user has organization
@@ -115,21 +117,38 @@ func DeleteOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, 
 }
 
 // - GetOrganizations with filters, pagination, and sorting for the user
-func GetOrganizations(c *fiber.Ctx, organizationCollection *mongo.Collection, ownerID string, filters map[string]string, page int, limit int, sort string) ([]Organization, error) {
+func GetOrganizations(c *fiber.Ctx, organizationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sort string, sortOrder string) ([]Organization, error) {
+
+	if filters == nil {
+		filters = map[string]string{}
+	}
+
 	// create a filter for the ownerID
 	filters["ownerID"] = ownerID
 
-	// get the organizations
-	cursor, err := organizationCollection.Find(c.Context(), filters)
+	// make the *options.FindOptions object
+	var getOptions *options.FindOptions = options.Find()
+
+	// if the page is nil, set it to 1 and reference it to the page argument
+
+	getOptions.SetSkip(offset)
+	getOptions.SetLimit(limit)
+
+	// get the organizations, filter, sort, and paginate
+	cursor, err := organizationCollection.Find(context.TODO(), filters, getOptions)
 	if err != nil {
 		return nil, errors.New("Error getting organizations")
 	}
 
 	// get the organizations
 	var orgs []Organization
-	if err = cursor.All(c.Context(), &orgs); err != nil {
+
+	err = cursor.All(context.TODO(), &orgs)
+	if err != nil {
 		return nil, errors.New("Error getting organizations")
 	}
+
+	cursor.Close(context.TODO())
 
 	return orgs, nil
 }

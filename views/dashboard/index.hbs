@@ -1,0 +1,219 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+
+<main>
+    <h1>{{Title}}</h1>
+
+    {{!-- this section will display up to 5 items of each organized into a list, with its respective show more items link --}}
+
+    {{!-- the organizations list section --}}
+    <section id="organizations-wrapper" class="">
+        <div>
+            <h2>Organizations</h2>
+            {{!-- the buttons to add and bulk item actions --}}
+            <div>
+                <a href="/organization/add" class="btn">Add Organization</a>
+
+                <form id="bulk-delete-form" action="/organization/bulk-delete" method="post">
+                    <input type="hidden" name="ids" id="bulk-delete-ids" value="">
+                    <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
+                </form>
+            </div>
+        </div>
+
+        {{!-- replace that above with a table --}}
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each Organizations}}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="organization" value="{{this._id}}">
+                        </td>
+                        <td>
+                            <a href="/organization/{{this._id}}">{{this.Name}}</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        {{!-- a link to show more --}}
+        <a href="#" class="btn">Show More</a>
+    </section>
+
+    {{!-- the locations list section --}}
+    <section id="locations-wrapper" class="">
+        <div>
+            <h2>Locations</h2>
+            {{!-- the buttons to add and bulk item actions --}}
+            <div>
+                <a href="/location/add" class="btn">Add Location</a>
+
+                <form id="bulk-delete-form" action="/location/bulk-delete" method="post">
+                    <input type="hidden" name="ids" id="bulk-delete-ids" value="">
+                    <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
+                </form>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Organization</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each Locations}}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="location" value="{{this._id}}">
+                        </td>
+                        <td>
+                            <a href="/location/{{this._id}}">{{this.Name}}</a>
+                        </td>
+                        <td>
+                            {{this.Organization.Name}}
+                        </td>
+                        <td>
+                            {{#if this.Address}}
+                                {{this.Address}}, {{this.City}}, {{this.State}}, {{this.Zip}}
+                            {{else}}
+                                Address not provided
+                            {{/if}}
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{!-- a link to show more --}}
+        <a href="#" class="btn">Show More</a>
+    </section>
+
+    {{!-- the booking resources list section --}}
+    <section id="booking-resources-wrapper" class="">
+        <div>
+            <h2>Booking Resources</h2>
+            {{!-- the buttons to add and bulk item actions --}}
+            <div>
+                <a href="/booking-resource/add" class="btn">Add Booking Resource</a>
+
+                <form id="bulk-delete-form" action="/booking-resource/bulk-delete" method="post">
+                    <input type="hidden" name="ids" id="bulk-delete-ids" value="">
+                    <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
+                </form>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each BookingResources}}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="booking-resource" value="{{this._id}}">
+                        </td>
+                        <td>
+                            <a href="/booking-resource/{{this._id}}">{{this.Name}}</a>
+                        </td>
+                        <td>
+                            {{this.Type}}
+                        </td>
+                        <td>
+                            {{this.Location.Name}}
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{!-- a link to show more --}}
+        <a href="#" class="btn">Show More</a>
+    </section>
+
+    {{!-- the reservations list section --}}
+    <section id="reservations-wrapper" class="">
+        <div>
+            <h2>Reservations</h2>
+            {{!-- the buttons to add and bulk item actions --}}
+            <div>
+                <a href="/reservation/add" class="btn">Add Reservation</a>
+
+                <form id="bulk-delete-form" action="/reservation/bulk-delete" method="post">
+                    <input type="hidden" name="ids" id="bulk-delete-ids" value="">
+                    <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
+                </form>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Booking Resource</th>
+                    <th>Assistant</th>
+                    <th>Contact</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each Reservations}}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="reservation" value="{{this._id}}">
+                        </td>
+                        <td>
+                            <a href="/reservation/{{this._id}}">{{this.Name}}</a>
+                        </td>
+                        <td>
+                            {{this.BookingResource.Name}}
+                        </td>
+                        <td>
+                            {{this.AssistantFirstName}} {{this.AssistantLastName}}
+                        </td>
+                        <td>
+                            {{this.AssistantEmail}} - {{this.AssistantPhone}}
+                        </td>
+                        <td>
+                            {{this.StartDate}}
+                        </td>
+                        <td>
+                            {{this.EndDate}}
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        {{!-- a link to show more --}}
+        <a href="#" class="btn">Show More</a>
+    </section>
+
+    <section id="error-section" class="error-section">
+        {{#if Error}}
+            <p>{{Error}}</p>
+        {{/if}}
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+<script src="/public/js/index.js"></script>
+
+{{> 'partials/footer' }}

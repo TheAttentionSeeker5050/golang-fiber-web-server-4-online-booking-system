@@ -2,7 +2,6 @@ package routers
 
 import (
 	"example/web-server/controllers"
-	"example/web-server/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -34,20 +33,5 @@ func HomeRoutes(group fiber.Router) {
 		return controllers.StaticPageController(c, "pages/contact", &fiber.Map{
 			"Title": "Contact",
 		})
-	})
-
-	// // Profile page route
-	// group.Get("/profile", controllers.ViewProfileDataController)
-
-	// Dashboard page route
-	group.Get("/dashboard", func(c *fiber.Ctx) error {
-		argumentsMap := &fiber.Map{
-			"Title": "Dashboard",
-		}
-
-		// add the Authenticated flag to the argumentsMap using http headers
-		(*argumentsMap)["IsAuthenticated"] = string(c.Request().Header.Peek("Authenticated")) == "true"
-
-		return utils.CustomRenderTemplate(c, "dashboard", *argumentsMap)
 	})
 }
