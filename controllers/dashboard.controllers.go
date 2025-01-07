@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"example/web-server/config"
+	"example/web-server/data"
 	"example/web-server/models"
 	"example/web-server/utils"
 
@@ -87,7 +88,7 @@ func ViewDashboardController(c *fiber.Ctx) error {
 	}
 
 	// get the reservations using models function
-	reservations, err := models.GetReservations(c, reservationsCollection, userID, nil, 0, 5, "", "")
+	reservations, err := models.GetReservations(c, reservationsCollection, userID, nil, 0, 5, "", data.SORT_ORDER_DESC)
 	if err != nil {
 		// add error msg to the argumentsMap
 		(*argumentsMap)["Error"] = "Error getting Reservations"

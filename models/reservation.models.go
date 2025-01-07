@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"example/web-server/config"
-	"fmt"
+	"example/web-server/data"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -80,7 +81,7 @@ func DeleteReservation(id string) error {
 }
 
 // - GetReservations with filters, pagination, and sorting for the user
-func GetReservations(c *fiber.Ctx, reservationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sort string, sortOrder string) ([]Reservation, error) {
+func GetReservations(c *fiber.Ctx, reservationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sortStr string, sortOrder int) ([]Reservation, error) {
 	if filters == nil {
 		filters = map[string]string{}
 	}
@@ -91,15 +92,23 @@ func GetReservations(c *fiber.Ctx, reservationCollection *mongo.Collection, owne
 	// make the *options.FindOptions object
 	var getOptions *options.FindOptions = options.Find()
 
+	// make sort order from ascending or descending or asc or desc to either 1 or -1
+	if sortOrder != data.SORT_ORDER_ASC && sortOrder != data.SORT_ORDER_DESC {
+		sortOrder = data.SORT_ORDER_DESC
+	}
+
+	if sortStr == "" {
+		sortStr = "startDate"
+	}
+
 	// if the page is nil, set it to 1 and reference it to the page argument
 	getOptions.SetSkip(offset)
 	getOptions.SetLimit(limit)
+	getOptions.SetSort(bson.D{{sortStr, sortOrder}})
 
 	// get the reservations, filter, sort, and paginate
 	cursor, err := reservationCollection.Find(context.TODO(), filters, getOptions)
 	if err != nil {
-		fmt.Println("Error getting reservations: ", err)
-		fmt.Println("Error is on reservationCollection.Find")
 		return nil, errors.New("Error getting reservations")
 	}
 

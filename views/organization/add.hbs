@@ -1,0 +1,96 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+{{!-- 
+type Organization struct {
+	ID        string     `json:"id" bson:"_id"`
+	Name      string     `json:"name" bson:"name"`
+	CreatedAt time.Time  `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt" bson:"updatedAt"`
+	OwnerID   string     `json:"ownerID" bson:"ownerID"`
+	Locations []Location `json:"locations" bson:"locations"`
+}
+ --}}
+<main>
+    <h1>{{Title}}</h1>
+    <section id="top-profile-wrapper" class="">
+        <a href="/organizations" class="btn btn-primary">Back to Organizations</a>
+        <form id="add-organization-form" class="add-organization-form" action="/organizations/add" method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Organization name" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Organization</button>
+        </form>
+    </section>
+    
+    {{!-- display form errors --}}
+    <section id="form-errors" class="form-errors">
+        <ul>
+            {{!-- errors convert stringified array to array --}}
+            {{#each Errors}}
+                <li>{{this}}</li>
+            {{/each}}
+        </ul>
+    </section>
+
+    {{!-- display success message --}}
+    <section id="success-message" class="success-message">
+        {{#if Success}}
+            <p>Organizations created successfully</p>
+            <p>Redirecting to organizations page...</p>
+            <script>
+                setTimeout(() => {
+                    window.location.href = '/organization';
+                }, 3000);
+            </script>
+        {{/if}}
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+<script>
+    $(document).ready(function(){
+        // this is to send the form data to the server over Zepto ajax
+        $('#add-organization-form').submit(function(e) {
+            e.preventDefault();
+            var form = e.target;
+
+            var data = {}; 
+            $('#add-organization-form').serializeArray().map(function(x){
+                data[x.name] = x.value;
+                }
+            );
+
+            var url = form.attributes.action.value;
+            var method = form.attributes.method.value;
+
+            // make an ajax request and handle the response by adding either success or error message
+            $.ajax({
+                type: method,
+                url: url,
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                success: function(response) {
+                    // add success message and the script to redirect to organizations page
+                    $('#success-message').html(`
+                        <p>Organization created successfully</p>
+                        <p>Redirecting to organizations page...</p>
+                    `);
+                },
+                error: function(xhr, status, error){
+                    var message = JSON.parse(xhr.response).message || "Could not add organization";
+                    // add error message
+                    $('#form-errors').html('<ul><li>' + message + '</li></ul>');
+                }
+            });
+
+            setTimeout(() => {
+                window.location.href = '/organizations';
+            }, 3000);
+        });
+    });
+</script>
+
+{{> 'partials/footer' }}

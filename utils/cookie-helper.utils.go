@@ -14,7 +14,6 @@ func AddToCookies(c *fiber.Ctx, key string, value string, sameSite string) {
 	// if cookies sameSite is not provided or not allowed, return error
 	if sameSite != "" && sameSite != fiber.CookieSameSiteLaxMode && sameSite != fiber.CookieSameSiteStrictMode && sameSite != fiber.CookieSameSiteNoneMode && sameSite != fiber.CookieSameSiteDisabled {
 		// throw error if the sameSite is not allowed
-		// panic("SameSite value is not allowed")
 		return // return nothing
 	}
 	// add the token to cookies

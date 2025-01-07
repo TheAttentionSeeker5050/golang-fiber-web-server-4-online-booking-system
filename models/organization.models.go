@@ -23,12 +23,12 @@ import (
 // - Locations: []Location // locations tied to the organization
 
 type Organization struct {
-	ID        string     `json:"id" bson:"_id"`
-	Name      string     `json:"name" bson:"name"`
-	CreatedAt time.Time  `json:"createdAt" bson:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt" bson:"updatedAt"`
-	OwnerID   string     `json:"ownerID" bson:"ownerID"`
-	Locations []Location `json:"locations" bson:"locations"`
+	ID        string      `json:"id" bson:"_id"`
+	Name      string      `json:"name" bson:"name"`
+	CreatedAt time.Time   `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time   `json:"updatedAt" bson:"updatedAt"`
+	OwnerID   string      `json:"ownerID" bson:"ownerID"`
+	Locations *[]Location `json:"locations" bson:"locations"`
 }
 
 // function to get the organization collection
@@ -55,13 +55,13 @@ func GetOrganizationCollection() (*mongo.Client, *mongo.Collection, error) {
 func CreateOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, org *Organization) error {
 	// only one organization can be created by a user with the same name
 	// so we are checking if the organization already exists for the user
-	err := organizationCollection.FindOne(c.Context(), bson.M{"name": org.Name, "ownerID": org.OwnerID}).Err()
+	err := organizationCollection.FindOne(context.TODO(), bson.M{"name": org.Name, "ownerID": org.OwnerID}).Err()
 	if err == nil {
 		return errors.New("Organization already exists")
 	}
 
 	// insert the organization into the database
-	_, err = organizationCollection.InsertOne(c.Context(), org)
+	_, err = organizationCollection.InsertOne(context.TODO(), org)
 	if err != nil {
 		return errors.New("Error inserting organization")
 	}
@@ -73,7 +73,7 @@ func CreateOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, 
 func GetOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, id string) (*Organization, error) {
 	// find the organization by id
 	var org Organization
-	err := organizationCollection.FindOne(c.Context(), bson.M{"_id": id}).Decode(&org)
+	err := organizationCollection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&org)
 	if err != nil {
 		return nil, errors.New("Organization not found")
 	}

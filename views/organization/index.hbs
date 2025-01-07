@@ -1,0 +1,60 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+
+<main>
+    <h1>{{Title}}</h1>
+
+    {{!-- the organizations list section --}}
+    <section id="organizations-wrapper" class="list-wrapper">
+        <div>
+            <h2>Organizations</h2>
+            {{!-- the buttons to add and bulk item actions --}}
+            <div>
+                <a href="/organizations/add" class="btn">Add Organization</a>
+
+                <form id="bulk-delete-form" action="/organizations/bulk-delete" method="post">
+                    <input type="hidden" name="ids" id="bulk-delete-ids" value="">
+                    <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
+                </form>
+            </div>
+        </div>
+
+        {{!-- replace that above with a table --}}
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each Organizations}}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="organization" value="{{this.ID}}">
+                        </td>
+                        <td>
+                            <a href="/organization/view/{{this.ID}}">{{this.Name}}</a>
+                        </td>
+                        <td>
+                            <a href="/organizations/edit/{{this.ID}}" class="btn btn-primary">Edit</a>
+                            <a href="/organizations/delete/{{this.ID}}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </section>
+
+    <section id="error-section" class="error-section">
+        {{#if Error}}
+            <p>{{Error}}</p>
+        {{/if}}
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+
+{{> 'partials/footer' }}
