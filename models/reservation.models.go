@@ -29,6 +29,8 @@ import (
 type Reservation struct {
 	ID                 string           `json:"id" bson:"_id"`
 	OwnerID            string           `json:"ownerID" bson:"ownerID"`
+	OrganizationID     string           `json:"organizationID" bson:"organizationID"`
+	Organization       *Organization    `json:"organization" bson:"organization"`
 	BookingResourceID  string           `json:"bookingResourceID" bson:"bookingResourceID"`
 	BookingResource    *BookingResource `json:"bookingResource" bson:"bookingResource"`
 	AssistantEmail     string           `json:"assistantEmail" bson:"assistantEmail"`
@@ -81,7 +83,7 @@ func DeleteReservation(id string) error {
 }
 
 // - GetReservations with filters, pagination, and sorting for the user
-func GetReservations(c *fiber.Ctx, reservationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sortStr string, sortOrder int) ([]Reservation, error) {
+func GetReservations(c *fiber.Ctx, reservationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sortStr string, sortOrder string) ([]Reservation, error) {
 	if filters == nil {
 		filters = map[string]string{}
 	}

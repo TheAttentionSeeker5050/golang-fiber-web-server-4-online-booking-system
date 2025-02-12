@@ -23,12 +23,14 @@ import (
 // - Locations: []Location // locations tied to the organization
 
 type Organization struct {
-	ID        string      `json:"id" bson:"_id"`
-	Name      string      `json:"name" bson:"name"`
-	CreatedAt time.Time   `json:"createdAt" bson:"createdAt"`
-	UpdatedAt time.Time   `json:"updatedAt" bson:"updatedAt"`
-	OwnerID   string      `json:"ownerID" bson:"ownerID"`
-	Locations *[]Location `json:"locations" bson:"locations"`
+	ID               string             `json:"id" bson:"_id"`
+	Name             string             `json:"name" bson:"name"`
+	CreatedAt        time.Time          `json:"createdAt" bson:"createdAt"`
+	UpdatedAt        time.Time          `json:"updatedAt" bson:"updatedAt"`
+	OwnerID          string             `json:"ownerID" bson:"ownerID"`
+	Locations        *[]Location        `json:"locations" bson:"locations"`
+	Reservations     *[]Reservation     `json:"reservations" bson:"reservations"`
+	BookingResources *[]BookingResource `json:"bookingResources" bson:"bookingResources"`
 }
 
 // function to get the organization collection

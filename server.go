@@ -63,6 +63,12 @@ func main() {
 	routers.DashboardRoutes(dashboardGroup)
 	organizationGroup := app.Group("/organizations")
 	routers.OrganizationRoutes(organizationGroup)
+	bookingResourceGroup := app.Group("/booking-resources")
+	routers.BookingResourceRoutes(bookingResourceGroup)
+	reservationGroup := app.Group("/reservations")
+	routers.ReservationRoutes(reservationGroup)
+	locationGroup := app.Group("/locations")
+	routers.LocationRoutes(locationGroup)
 
 	port := os.Getenv("PORT")
 	if port == "" {

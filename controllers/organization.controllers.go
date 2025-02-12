@@ -12,7 +12,108 @@ import (
 
 func DetailViewOrganizationController(c *fiber.Ctx) error {
 
-	return nil
+	// get the organization id from the url param :id
+	organizationID := c.Params("id")
+
+	// create the arguments map
+	argumentsMap := &fiber.Map{
+		"Title": "Organization Details",
+	}
+
+	// add the Authenticated flag to the argumentsMap using http headers
+	(*argumentsMap)["IsAuthenticated"] = string(c.Request().Header.Peek("Authenticated")) == "true"
+
+	// get the user id from the Locals
+	userID := c.Locals("userID").(string)
+
+	// get the mongo client and collection for organizations
+	mongoClient, organizationCollection, err := models.GetOrganizationCollection()
+	if err != nil {
+		// add error msg to the argumentsMap
+		(*argumentsMap)["Error"] = "Error getting organization collection"
+	} else {
+		// get the organization from the model
+		organization, err := models.GetOrganization(c, organizationCollection, organizationID)
+		if err != nil {
+			// add error msg to the argumentsMap
+			(*argumentsMap)["Error"] = "Error getting Organization"
+			(*argumentsMap)["Title"] = "Error - Resource Not Found"
+		} else {
+			// check if the user is the owner of the organization
+			if organization.OwnerID != userID {
+				// add error msg to the argumentsMap
+				(*argumentsMap)["Error"] = "You are not the owner of the organization"
+				(*argumentsMap)["Title"] = "Error - Unauthorized"
+			} else {
+				// make a filters map for all the locations to match the organization id
+				filters := map[string]string{}
+
+				// add the organization to the argumentsMap
+				(*argumentsMap)["Organization"] = organization
+				// add title to the argumentsMap to organization name
+				(*argumentsMap)["Title"] = organization.Name + " - Details"
+
+				// get the resources for the organization, the collections: locations, booking resources, and reservations
+				locationCollection, err := config.GetMongoCollection(mongoClient, "locations")
+				if err != nil {
+					// add error msg to the argumentsMap
+					(*argumentsMap)["Error"] = "Error getting location collection"
+				} else {
+					// add the organizationID to the filters
+					filters["organizationID"] = organizationID
+
+					// get the locations for the organization
+					locations, err := models.GetLocations(c, locationCollection, userID, filters, 0, 5, "", "")
+					if err != nil {
+						// add error msg to the argumentsMap
+						(*argumentsMap)["Error"] = "Error getting Locations"
+					} else {
+						// add the locations to the argumentsMap
+						(*argumentsMap)["Locations"] = locations
+					}
+				}
+
+				// get the booking resources collection
+				bookingResourceCollection, err := config.GetMongoCollection(mongoClient, "booking_resources")
+				if err != nil {
+					// add error msg to the argumentsMap
+					(*argumentsMap)["Error"] = "Error getting booking resource collection"
+				} else {
+					// get the booking resources for the organization
+					bookingResources, err := models.GetBookingResources(c, bookingResourceCollection, userID, filters, 0, 5, "", "")
+					if err != nil {
+						// add error msg to the argumentsMap
+						(*argumentsMap)["Error"] = "Error getting Booking Resources"
+					} else {
+						// add the booking resources to the argumentsMap
+						(*argumentsMap)["BookingResources"] = bookingResources
+					}
+				}
+
+				// get the reservations collection
+				reservationCollection, err := config.GetMongoCollection(mongoClient, "reservations")
+				if err != nil {
+					// add error msg to the argumentsMap
+					(*argumentsMap)["Error"] = "Error getting reservation collection"
+				} else {
+					// get the reservations for the organization
+					reservations, err := models.GetReservations(c, reservationCollection, userID, filters, 0, 5, "", "")
+					if err != nil {
+						// add error msg to the argumentsMap
+						(*argumentsMap)["Error"] = "Error getting Reservations"
+					} else {
+						// add the reservations to the argumentsMap
+						(*argumentsMap)["Reservations"] = reservations
+					}
+				}
+			}
+		}
+	}
+
+	// close the mongo client connection
+	config.CloseMongoClientConnection(mongoClient)
+
+	return utils.CustomRenderTemplate(c, "organization/view", *argumentsMap)
 }
 
 func AddOrganizationController(c *fiber.Ctx) error {

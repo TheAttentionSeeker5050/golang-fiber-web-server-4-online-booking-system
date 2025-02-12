@@ -38,7 +38,7 @@
                             <input type="checkbox" name="organization" value="{{this.ID}}">
                         </td>
                         <td>
-                            <a href="/organization/view/{{this.ID}}">{{this.Name}}</a>
+                            <a href="/organizations/view/{{this.ID}}">{{this.Name}}</a>
                         </td>
                         <td>
                             <a href="/organizations/edit/{{this.ID}}" class="btn btn-primary">Edit</a>
@@ -59,9 +59,9 @@
             <h2>Locations</h2>
             {{!-- the buttons to add and bulk item actions --}}
             <div>
-                <a href="/location/add" class="btn">Add Location</a>
+                <a href="/locations/add" class="btn">Add Location</a>
 
-                <form id="bulk-delete-form" action="/location/bulk-delete" method="post">
+                <form id="bulk-delete-form" action="/locations/bulk-delete" method="post">
                     <input type="hidden" name="ids" id="bulk-delete-ids" value="">
                     <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
                 </form>
@@ -84,7 +84,7 @@
                             <input type="checkbox" name="location" value="{{this.ID}}">
                         </td>
                         <td>
-                            <a href="/location/view/{{this.ID}}">{{this.Name}}</a>
+                            <a href="/locations/view/{{this.ID}}">{{this.Name}}</a>
                         </td>
                         <td>
                             {{this.Organization.Name}}
@@ -101,7 +101,7 @@
             </tbody>
         </table>
         {{!-- a link to show more --}}
-        <a href="#" class="btn">Show More</a>
+        <a href="/locations" class="btn">Show More</a>
     </section>
 
     {{!-- the booking resources list section --}}
@@ -110,9 +110,9 @@
             <h2>Booking Resources</h2>
             {{!-- the buttons to add and bulk item actions --}}
             <div>
-                <a href="/booking-resource/add" class="btn">Add Booking Resource</a>
+                <a href="/booking-resources/add" class="btn">Add Booking Resource</a>
 
-                <form id="bulk-delete-form" action="/booking-resource/bulk-delete" method="post">
+                <form id="bulk-delete-form" action="/booking-resources/bulk-delete" method="post">
                     <input type="hidden" name="ids" id="bulk-delete-ids" value="">
                     <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
                 </form>
@@ -135,7 +135,7 @@
                             <input type="checkbox" name="booking-resource" value="{{this.ID}}">
                         </td>
                         <td>
-                            <a href="/booking-resource/view/{{this.ID}}">{{this.Name}}</a>
+                            <a href="/booking-resources/view/{{this.ID}}">{{this.Name}}</a>
                         </td>
                         <td>
                             {{this.Type}}
@@ -148,7 +148,7 @@
             </tbody>
         </table>
         {{!-- a link to show more --}}
-        <a href="#" class="btn">Show More</a>
+        <a href="/booking-resources" class="btn">Show More</a>
     </section>
 
     {{!-- the reservations list section --}}
@@ -157,9 +157,9 @@
             <h2>Reservations</h2>
             {{!-- the buttons to add and bulk item actions --}}
             <div>
-                <a href="/reservation/add" class="btn">Add Reservation</a>
+                <a href="/reservations/add" class="btn">Add Reservation</a>
 
-                <form id="bulk-delete-form" action="/reservation/bulk-delete" method="post">
+                <form id="bulk-delete-form" action="/reservations/bulk-delete" method="post">
                     <input type="hidden" name="ids" id="bulk-delete-ids" value="">
                     <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
                 </form>
@@ -185,7 +185,7 @@
                             <input type="checkbox" name="reservation" value="{{this.ID}}">
                         </td>
                         <td>
-                            <a href="/reservation/view/{{this.ID}}">{{this.Name}}</a>
+                            <a href="/reservations/view/{{this.ID}}">{{this.Name}}</a>
                         </td>
                         <td>
                             {{this.BookingResource.Name}}
@@ -208,7 +208,7 @@
         </table>
 
         {{!-- a link to show more --}}
-        <a href="#" class="btn">Show More</a>
+        <a href="/reservations" class="btn">Show More</a>
     </section>
 
     <section id="error-section" class="error-section">
