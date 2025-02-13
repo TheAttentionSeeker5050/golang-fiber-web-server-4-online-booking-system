@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"example/web-server/config"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -23,7 +25,8 @@ import (
 // - Locations: []Location // locations tied to the organization
 
 type Organization struct {
-	ID               string             `json:"id" bson:"_id"`
+	ID               primitive.ObjectID `json:"id" bson:"_id"`
+	IDString         string             `json:"idString" bson:"idString"` // this just serves the purpose of converting the ObjectID to a string and its optional
 	Name             string             `json:"name" bson:"name"`
 	CreatedAt        time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt        time.Time          `json:"updatedAt" bson:"updatedAt"`
@@ -75,10 +78,19 @@ func CreateOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, 
 func GetOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, id string) (*Organization, error) {
 	// find the organization by id
 	var org Organization
-	err := organizationCollection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&org)
+	// parse the id string to a primitive.ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, errors.New("Error parsing object id")
+	}
+	err = organizationCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&org)
 	if err != nil {
 		return nil, errors.New("Organization not found")
 	}
+
+	// add the id string to the organization
+	org.IDString = org.ID.Hex()
 
 	return &org, nil
 }
@@ -86,7 +98,7 @@ func GetOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, id 
 // - UpdateOrganization
 func UpdateOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, org *Organization) error {
 	// first get the organization by id
-	_, err := GetOrganization(c, organizationCollection, org.ID)
+	_, err := GetOrganization(c, organizationCollection, org.ID.String())
 	if err != nil {
 		return errors.New("Organization not found")
 	}
@@ -145,10 +157,21 @@ func GetOrganizations(c *fiber.Ctx, organizationCollection *mongo.Collection, ow
 	// get the organizations
 	var orgs []Organization
 
-	err = cursor.All(context.TODO(), &orgs)
-	if err != nil {
-		return nil, errors.New("Error getting organizations")
+	// Iterate through the returned cursor and add the id string to the organization
+	for cursor.Next(context.Background()) {
+		var org Organization
+		err := cursor.Decode(&org)
+		if err != nil {
+			return nil, errors.New("Error decoding organization")
+		}
+		org.IDString = org.ID.Hex()
+		orgs = append(orgs, org)
 	}
+
+	// err = cursor.All(context.TODO(), &orgs)
+	// if err != nil {
+	// 	return nil, errors.New("Error getting organizations")
+	// }
 
 	cursor.Close(context.TODO())
 

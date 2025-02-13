@@ -4,10 +4,11 @@ import (
 	"example/web-server/config"
 	"example/web-server/models"
 	"example/web-server/utils"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func DetailViewOrganizationController(c *fiber.Ctx) error {
@@ -35,6 +36,7 @@ func DetailViewOrganizationController(c *fiber.Ctx) error {
 		// get the organization from the model
 		organization, err := models.GetOrganization(c, organizationCollection, organizationID)
 		if err != nil {
+			fmt.Println("Error getting organization: ", err.Error())
 			// add error msg to the argumentsMap
 			(*argumentsMap)["Error"] = "Error getting Organization"
 			(*argumentsMap)["Title"] = "Error - Resource Not Found"
@@ -158,7 +160,7 @@ func AddOrganizationPostController(c *fiber.Ctx) error {
 
 	// run the model function create organization
 	err = models.CreateOrganization(c, organizationCollection, &models.Organization{
-		ID:        uuid.New().String(),
+		ID:        primitive.NewObjectID(),
 		Name:      name,
 		OwnerID:   ownerID,
 		CreatedAt: time.Now(),

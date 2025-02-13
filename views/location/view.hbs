@@ -6,71 +6,20 @@
     <h1>{{Title}}</h1>
 
     <div>
-        <a href="/organizations" class="btn">Back to Organizations</a>
+        <a href="/locations" class="btn">Back to Locations</a>
     </div>
     
     {{!-- list the name of the organization and the resources associated to it --}}
     <section id="organization-details-wrapper" class="list-wrapper">
         <h2>Details</h2>
         <div>
-            <a href="/organizations/edit/{{Organization.IDString}}" class="btn btn-primary">Edit</a>
-            <a href="/organizations/delete/{{Organization.IDString}}" class="btn btn-danger">Delete</a>
+            <a href="/locations/edit/{{Location.IDString}}" class="btn btn-primary">Edit</a>
+            <a href="/locations/delete/{{Location.IDString}}" class="btn btn-danger">Delete</a>
         </div>
-        <p>Name: {{Organization.Name}}</p>
+        <p>Name: {{Location.Name}}</p>
     </section>
 
     {{!-- the resources associated with this organization --}}
-
-    {{!-- the locations list section --}}
-    <section id="locations-wrapper" class="list-wrapper">
-        <div>
-            <h2>Locations</h2>
-            {{!-- the buttons to add and bulk item actions --}}
-            <div>
-                <a href="/locations/add" class="btn">Add Location</a>
-
-                <form id="bulk-delete-form" action="/locations/bulk-delete" method="post">
-                    <input type="hidden" name="ids" id="bulk-delete-ids" value="">
-                    <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
-                </form>
-            </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Name</th>
-                    <th>Organization</th>
-                    <th>Address</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each Locations}}
-                    <tr id="{{this.ID}}">
-                        <td>
-                            <input type="checkbox" name="location" value="{{this.ID}}">
-                        </td>
-                        <td>
-                            <a href="/locations/view/{{this.ID}}">{{this.Name}}</a>
-                        </td>
-                        <td>
-                            {{this.Organization.Name}}
-                        </td>
-                        <td>
-                            {{#if this.Address}}
-                                {{this.Address}}, {{this.City}}, {{this.State}}, {{this.Zip}}
-                            {{else}}
-                                Address not provided
-                            {{/if}}
-                        </td>
-                    </tr>
-                {{/each}}
-            </tbody>
-        </table>
-        {{!-- a link to show more --}}
-        <a href="/locations" class="btn">Show More</a>
-    </section>
 
     {{!-- the booking resources list section --}}
     <section id="booking-resources-wrapper" class="list-wrapper">

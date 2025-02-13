@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -60,7 +60,7 @@ func AuthLoginController(c *fiber.Ctx) error {
 	config.CloseMongoClientConnection(mongoClient)
 
 	// generate a jwt token
-	token, err := utils.GenerateLocalAuthJWTToken(resultUser["_id"].(string), resultUser["email"].(string))
+	token, err := utils.GenerateLocalAuthJWTToken((resultUser["_id"]).(primitive.ObjectID).String(), resultUser["email"].(string))
 	if err != nil {
 		return utils.CustomRenderTemplate(c, "auth/login", utils.GetFiberRenderMappingsAuthForms(email, password, "", "", "", &[]string{"Error authenticating your account"}, false))
 	}
@@ -100,7 +100,7 @@ func AuthRegisterController(c *fiber.Ctx) error {
 	}
 
 	models.SaveUserToDBUsingLocalAuthProvider(c, userMongoCollection, models.User{
-		ID:           uuid.New().String(),
+		ID:           primitive.NewObjectID(),
 		Email:        email,
 		PasswordHash: string(hash),
 		AuthProvider: data.AUTH_PROVIDER_LOCAL,

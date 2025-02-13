@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"example/web-server/config"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -28,21 +30,22 @@ import (
 // - phone: string // this is the phone number of the location
 // - OwnerID: string // this is the owner id of the location
 type Location struct {
-	ID               string            `json:"id" bson:"_id"`
-	Name             string            `json:"name" bson:"name"`
-	Address          string            `json:"address" bson:"address"`
-	City             string            `json:"city" bson:"city"`
-	State            string            `json:"state" bson:"state"`
-	Zip              string            `json:"zip" bson:"zip"`
-	Country          string            `json:"country" bson:"country"`
-	CreatedAt        time.Time         `json:"createdAt" bson:"createdAt"`
-	UpdatedAt        time.Time         `json:"updatedAt" bson:"updatedAt"`
-	Email            string            `json:"email" bson:"email"`
-	Phone            string            `json:"phone" bson:"phone"`
-	OwnerID          string            `json:"ownerID" bson:"ownerID"`
-	OrganizationID   string            `json:"organizationID" bson:"organizationID"`
-	Organization     *Organization     `json:"organization" bson:"organization"`
-	BookingResources []BookingResource `json:"bookingResources" bson:"bookingResources"`
+	ID               primitive.ObjectID `json:"id" bson:"_id"`
+	IDString         string             `json:"idString" bson:"idString"`
+	Name             string             `json:"name" bson:"name"`
+	Address          string             `json:"address" bson:"address"`
+	City             string             `json:"city" bson:"city"`
+	State            string             `json:"state" bson:"state"`
+	Zip              string             `json:"zip" bson:"zip"`
+	Country          string             `json:"country" bson:"country"`
+	CreatedAt        time.Time          `json:"createdAt" bson:"createdAt"`
+	UpdatedAt        time.Time          `json:"updatedAt" bson:"updatedAt"`
+	Email            string             `json:"email" bson:"email"`
+	Phone            string             `json:"phone" bson:"phone"`
+	OwnerID          string             `json:"ownerID" bson:"ownerID"`
+	OrganizationID   string             `json:"organizationID" bson:"organizationID"`
+	Organization     *Organization      `json:"organization" bson:"organization"`
+	BookingResources []BookingResource  `json:"bookingResources" bson:"bookingResources"`
 }
 
 // function to get the location collection
@@ -66,7 +69,7 @@ func GetLocationCollection() (*mongo.Client, *mongo.Collection, error) {
 
 // The crud operations for the location model
 // - CreateLocation
-func CreateLocation(c *fiber.Ctx, organizationCollection *mongo.Collection, loc *Location) error {
+func CreateLocation(c *fiber.Ctx, organizationCollection *mongo.Collection, loc *Location) error { // we use the * operator to get the value of the pointer from the function argument
 	// only one location can be created by a user with the same name
 	// so we are checking if the location already exists for the user
 	err := organizationCollection.FindOne(c.Context(), bson.M{"name": loc.Name, "ownerID": loc.OwnerID}).Err()
@@ -84,14 +87,26 @@ func CreateLocation(c *fiber.Ctx, organizationCollection *mongo.Collection, loc 
 }
 
 // - GetLocation
-func GetLocation(c *fiber.Ctx, organizationCollection *mongo.Collection, id string) (*Location, error) {
-	loc := &Location{}
-	err := organizationCollection.FindOne(c.Context(), bson.M{"_id": id}).Decode(loc)
+func GetLocation(c *fiber.Ctx, locationCollection *mongo.Collection, id string) (*Location, error) {
+	var loc Location
+
+	// parse the id string to a primitive.ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
+		fmt.Println("Error parsing object id", err)
+		return nil, errors.New("Error parsing object id")
+	}
+
+	err = locationCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&loc)
+	if err != nil {
+		fmt.Println("Error getting location", err)
 		return nil, errors.New("Error getting location")
 	}
 
-	return loc, nil
+	// add id string to the location
+	loc.IDString = loc.ID.Hex()
+
+	return &loc, nil
 }
 
 // - UpdateLocation
@@ -117,7 +132,7 @@ func DeleteLocation(c *fiber.Ctx, organizationCollection *mongo.Collection, id s
 }
 
 // - GetLocations with filters, pagination, and sorting for the user
-func GetLocations(c *fiber.Ctx, organizationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sort string, sortOrder string) ([]Location, error) {
+func GetLocations(c *fiber.Ctx, locationCollection *mongo.Collection, ownerID string, filters map[string]string, offset int64, limit int64, sort string, sortOrder string) ([]Location, error) {
 	if filters == nil {
 		filters = map[string]string{}
 	}
@@ -133,7 +148,7 @@ func GetLocations(c *fiber.Ctx, organizationCollection *mongo.Collection, ownerI
 	getOptions.SetLimit(limit)
 
 	// find the locations, filter, sort, and paginate
-	cursor, err := organizationCollection.Find(context.TODO(), filters, getOptions)
+	cursor, err := locationCollection.Find(context.TODO(), filters, getOptions)
 	if err != nil {
 		return nil, errors.New("Error getting locations")
 	}
@@ -141,11 +156,26 @@ func GetLocations(c *fiber.Ctx, organizationCollection *mongo.Collection, ownerI
 	// get the locations from the database
 	var locations []Location
 
-	// iterate over the cursor and decode the data
-	err = cursor.All(context.TODO(), &locations)
-	if err != nil {
-		return nil, errors.New("Error getting locations")
+	// Iterate to add idString to the locations
+	for cursor.Next(context.Background()) {
+		var loc Location
+		err := cursor.Decode(&loc)
+		if err != nil {
+			fmt.Println("Error decoding location", err)
+			return nil, errors.New("Error decoding location")
+		}
+
+		// add id string to the location
+		loc.IDString = loc.ID.Hex()
+		locations = append(locations, loc)
+
 	}
+
+	// // iterate over the cursor and decode the data
+	// err = cursor.All(context.TODO(), &locations)
+	// if err != nil {
+	// 	return nil, errors.New("Error getting locations")
+	// }
 
 	cursor.Close(context.TODO())
 

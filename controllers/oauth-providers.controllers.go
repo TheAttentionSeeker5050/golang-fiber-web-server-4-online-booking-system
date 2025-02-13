@@ -12,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Oauth2 providers controllers
@@ -92,7 +93,7 @@ func SignWithGoogleCallbackController(c *fiber.Ctx) error {
 	if err != nil {
 		// save the user to the database
 		err = models.SaveUserToDBUsingGoogleProvider(c, userMongoCollection, &utils.GoogleClaims{
-			ID:            userDataMap["id"].(string),
+			ID:            userDataMap["id"].(primitive.ObjectID),
 			Email:         userDataMap["email"].(string),
 			EmailVerified: true,
 			Sub:           userDataMap["id"].(string),

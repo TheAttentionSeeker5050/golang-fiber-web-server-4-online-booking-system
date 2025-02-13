@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type GoogleClaims struct {
-	ID            string `json:"id"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Sub           string `json:"sub"` // Google user ID
-	Name          string `json:"name"`
-	Picture       string `json:"picture"`
+	ID            primitive.ObjectID `json:"id"`
+	Email         string             `json:"email"`
+	EmailVerified bool               `json:"email_verified"`
+	Sub           string             `json:"sub"` // Google user ID
+	Name          string             `json:"name"`
+	Picture       string             `json:"picture"`
 }
 
 func VerifyGoogleToken(token string) (*GoogleClaims, error) {

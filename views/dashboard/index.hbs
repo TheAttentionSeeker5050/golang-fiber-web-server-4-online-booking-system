@@ -33,16 +33,16 @@
             </thead>
             <tbody>
                 {{#each Organizations}}
-                    <tr id="{{this.ID}}">
+                    <tr id="{{this.IDString}}">
                         <td>
-                            <input type="checkbox" name="organization" value="{{this.ID}}">
+                            <input type="checkbox" name="organization" value="{{this.IDString}}">
                         </td>
                         <td>
-                            <a href="/organizations/view/{{this.ID}}">{{this.Name}}</a>
+                            <a href="/organizations/view/{{this.IDString}}">{{this.Name}}</a>
                         </td>
                         <td>
-                            <a href="/organizations/edit/{{this.ID}}" class="btn btn-primary">Edit</a>
-                            <a href="/organizations/delete/{{this.ID}}" class="btn btn-danger">Delete</a>
+                            <a href="/organizations/edit/{{this.IDString}}" class="btn btn-primary">Edit</a>
+                            <a href="/organizations/delete/{{this.IDString}}" class="btn btn-danger">Delete</a>
                         </td>
                     </tr>
                 {{/each}}
@@ -79,12 +79,12 @@
             </thead>
             <tbody>
                 {{#each Locations}}
-                    <tr id="{{this.ID}}">
+                    <tr id="{{this.IDString}}">
                         <td>
-                            <input type="checkbox" name="location" value="{{this.ID}}">
+                            <input type="checkbox" name="location" value="{{this.IDString}}">
                         </td>
                         <td>
-                            <a href="/locations/view/{{this.ID}}">{{this.Name}}</a>
+                            <a href="/locations/view/{{this.IDString}}">{{this.Name}}</a>
                         </td>
                         <td>
                             {{this.Organization.Name}}

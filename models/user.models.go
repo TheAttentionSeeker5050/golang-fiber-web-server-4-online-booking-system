@@ -9,18 +9,19 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type User struct {
-	ID           string `json:"id" bson:"_id"`
-	Email        string `json:"email" bson:"email"`
-	FirstName    string `json:"firstName" bson:"firstName"`
-	LastName     string `json:"lastName" bson:"lastName"`
-	Phone        string `json:"phone" bson:"phone"`
-	PasswordHash string `json:"passwordHash" bson:"passwordHash"`
-	AuthProvider string `json:"authProvider" bson:"authProvider"`
-	Picture      string `json:"picture"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	Email        string             `json:"email" bson:"email"`
+	FirstName    string             `json:"firstName" bson:"firstName"`
+	LastName     string             `json:"lastName" bson:"lastName"`
+	Phone        string             `json:"phone" bson:"phone"`
+	PasswordHash string             `json:"passwordHash" bson:"passwordHash"`
+	AuthProvider string             `json:"authProvider" bson:"authProvider"`
+	Picture      string             `json:"picture"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

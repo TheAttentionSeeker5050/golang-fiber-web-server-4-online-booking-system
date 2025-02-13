@@ -5,15 +5,15 @@
 <main>
     <h1>{{Title}}</h1>
 
-    {{!-- the organizations list section --}}
-    <section id="organizations-wrapper" class="list-wrapper">
+    {{!-- the locations list section --}}
+    <section id="locations-wrapper" class="list-wrapper">
         <div>
-            <h2>Organizations</h2>
+            <h2>Locations</h2>
             {{!-- the buttons to add and bulk item actions --}}
             <div>
-                <a href="/organizations/add" class="btn">Add Organization</a>
+                <a href="/locations/add" class="btn">Add Location</a>
 
-                <form id="bulk-delete-form" action="/organizations/bulk-delete" method="post">
+                <form id="bulk-delete-form" action="/locations/bulk-delete" method="post">
                     <input type="hidden" name="ids" id="bulk-delete-ids" value="">
                     <button class="btn" id="bulk-delete" type="submit">Delete Selected</button>
                 </form>
@@ -30,17 +30,17 @@
                 </tr>
             </thead>
             <tbody>
-                {{#each Organizations}}
+                {{#each Locations}}
                     <tr>
                         <td>
-                            <input type="checkbox" name="organization" value="{{this.IDString}}">
+                            <input type="checkbox" name="location" value="{{this.IDString}}">
                         </td>
                         <td>
-                            <a href="/organizations/view/{{this.IDString}}">{{this.Name}}</a>
+                            <a href="/locations/view/{{this.IDString}}">{{this.Name}}</a>
                         </td>
                         <td>
-                            <a href="/organizations/edit/{{this.IDString}}" class="btn btn-primary">Edit</a>
-                            <a href="/organizations/delete/{{this.IDString}}" class="btn btn-danger">Delete</a>
+                            <a href="/locations/edit/{{this.IDString}}" class="btn btn-primary">Edit</a>
+                            <a href="/locations/delete/{{this.IDString}}" class="btn btn-danger">Delete</a>
                         </td>
                     </tr>
                 {{/each}}
