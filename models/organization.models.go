@@ -13,16 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// user has organization
-// mongodb collection name: organizations
-// The properties of these are
-// - ID: string
-// - Name: string // this is the name of the organization
-// - CreatedAt: time.Time
-// - UpdatedAt: time.Time
-// - OwnerID: string // this is the owner of the organization (from the user model)
-// - Locations: []Location // locations tied to the organization
-
 type Organization struct {
 	ID               primitive.ObjectID `json:"id" bson:"_id"`
 	IDString         string             `json:"idString" bson:"idString"` // this just serves the purpose of converting the ObjectID to a string and its optional

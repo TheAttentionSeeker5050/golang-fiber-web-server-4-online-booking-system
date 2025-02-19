@@ -8,10 +8,11 @@
     {{!-- the organizations list section --}}
     <section id="organizations-wrapper" class="list-wrapper">
         <div>
-            <h2>Organizations</h2>
             {{!-- the buttons to add and bulk item actions --}}
             <div>
-                <a href="/organizations/add" class="btn">Add Organization</a>
+                <a href="/dashboard" class="">Back to Dashboard</a>
+                <a href="/organizations/add" class="">Add Organization</a>
+
 
                 <form id="bulk-delete-form" action="/organizations/bulk-delete" method="post">
                     <input type="hidden" name="ids" id="bulk-delete-ids" value="">
@@ -49,9 +50,6 @@
     </section>
 
     <section id="error-section" class="error-section">
-        {{#if Error}}
-            <p>{{Error}}</p>
-        {{/if}}
     </section>
 </main>
 

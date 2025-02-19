@@ -308,7 +308,7 @@ func DeleteOrganizationController(c *fiber.Ctx) error {
 
 	// make the arguments map structure
 	argumentsMap := &fiber.Map{
-		"Title": "Edit Organization",
+		"Title": "Delete Organization",
 	}
 
 	// add the Authenticated flag to the argumentsMap using http headers

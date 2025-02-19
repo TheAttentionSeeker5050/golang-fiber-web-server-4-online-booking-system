@@ -17,70 +17,15 @@
     
     {{!-- display form errors --}}
     <section id="form-errors" class="">
-        <ul>
-            {{!-- errors convert stringified array to array --}}
-            {{#each Errors}}
-                <li>{{this}}</li>
-            {{/each}}
-        </ul>
     </section>
 
     {{!-- display success message --}}
     <section id="success-message" class="">
-        {{#if Success}}
-            <p>Organizations created successfully</p>
-            <p>Redirecting to organizations page...</p>
-            <script>
-                setTimeout(() => {
-                    window.location.href = '/organization';
-                }, 3000);
-            </script>
-        {{/if}}
     </section>
 </main>
 
 <script src="/public/js/zepto.min.js"></script>
-<script>
-    $(document).ready(function(){
-        // this is to send the form data to the server over Zepto ajax
-        $('#add-organization-form').submit(function(e) {
-            e.preventDefault();
-            var form = e.target;
+<script type="module" src="/public/js/process-crud-form.js"></script>
 
-            var data = {}; 
-            $('#add-organization-form').serializeArray().map(function(x){
-                data[x.name] = x.value;
-                }
-            );
-
-            var url = form.attributes.action.value;
-            var method = form.attributes.method.value;
-
-            // make an ajax request and handle the response by adding either success or error message
-            $.ajax({
-                type: method,
-                url: url,
-                data: JSON.stringify(data),
-                contentType: "application/json; charset=utf-8",
-                success: function(response) {
-                    // add success message and the script to redirect to organizations page
-                    $('#success-message').html(`
-                        <p>Organization created successfully</p>
-                        <p>Redirecting to organizations page...</p>
-                    `);
-                },
-                error: function(xhr, status, error){
-                    var message = JSON.parse(xhr.response).message || "Could not add organization";
-                    // add error message
-                    $('#form-errors').html('<ul><li>' + message + '</li></ul>');
-                }
-            });
-
-            setTimeout(() => {
-                window.location.href = '/organizations';
-            }, 3000);
-        });
-    });
-</script>
 
 {{> 'partials/footer' }}

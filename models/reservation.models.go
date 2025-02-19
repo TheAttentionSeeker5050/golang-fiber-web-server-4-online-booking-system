@@ -13,19 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Reservation is a struct that represents the reservation of a booking resource
-// mongodb collection name: reservations
-// The properties of these are
-// - ID: string // this is the primary key
-// - BookingResourceID: string // this is the booking resource id of the reservation
-// - AssistantEmail: string // this is the assistant email of the reservation
-// - AssistantPhone: string // this is the assistant phone of the reservation
-// - AssistantFirstName: string // this is the assistant first name of the reservation
-// - AssistantLastName: string // this is the assistant last name of the reservation
-// - StartDate: time.Time // this is the start date of the reservation
-// - EndDate: time.Time // this is the end date of the reservation
-// - CreatedAt: time.Time
-// - UpdatedAt: time.Time
 type Reservation struct {
 	ID                 string           `json:"id" bson:"_id"`
 	OwnerID            string           `json:"ownerID" bson:"ownerID"`

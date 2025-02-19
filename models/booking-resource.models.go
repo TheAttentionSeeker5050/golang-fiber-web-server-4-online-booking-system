@@ -12,17 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// BookingResource is a struct that represents the booking resource of an organization's location. In general terms, it can be a room, a vehicle, a piece of equipment, a table, time with a professional, etc.
-// mongodb collection name: booking_resources
-// The properties of these are
-// - ID: string // this is the primary key
-// - Name: string // this is the name of the booking resource
-// - Type: string // this is the type of the booking resource, how we call it, for example, room, vehicle, equipment, table, etc. Default is table
-// - LocationID: string // this is the location id of the booking resource
-// - OwnerID: string // this is the owner id of the booking resource
-// - Description: string // this is the description of the booking resource
-// - CreatedAt: time.Time
-// - UpdatedAt: time.Time
 type BookingResource struct {
 	ID             primitive.ObjectID `json:"id" bson:"_id"`
 	Name           string             `json:"name" bson:"name"`

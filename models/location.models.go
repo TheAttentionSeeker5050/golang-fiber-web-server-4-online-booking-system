@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"example/web-server/config"
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,21 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Location is a struct that represents the location of an organization
-// mongodb collection name: locations
-// The properties of these are
-// - ID: string // this is the primary key
-// - Name: string // this is the name of the location
-// - Address: string // this is the address of the location
-// - City: string // this is the city of the location
-// - State: string // this is the state of the location
-// - Zip: string // this is the zip code of the location
-// - Country: string // this is the country of the location
-// - CreatedAt: time.Time
-// - UpdatedAt: time.Time
-// - email: string // this is the email of the location
-// - phone: string // this is the phone number of the location
-// - OwnerID: string // this is the owner id of the location
 type Location struct {
 	ID               primitive.ObjectID `json:"id" bson:"_id"`
 	IDString         string             `json:"idString" bson:"idString"`
@@ -93,13 +77,11 @@ func GetLocation(c *fiber.Ctx, locationCollection *mongo.Collection, id string) 
 	// parse the id string to a primitive.ObjectID
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		fmt.Println("Error parsing object id", err)
 		return nil, errors.New("Error parsing object id")
 	}
 
 	err = locationCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&loc)
 	if err != nil {
-		fmt.Println("Error getting location", err)
 		return nil, errors.New("Error getting location")
 	}
 
@@ -161,7 +143,6 @@ func GetLocations(c *fiber.Ctx, locationCollection *mongo.Collection, ownerID st
 		var loc Location
 		err := cursor.Decode(&loc)
 		if err != nil {
-			fmt.Println("Error decoding location", err)
 			return nil, errors.New("Error decoding location")
 		}
 
@@ -170,12 +151,6 @@ func GetLocations(c *fiber.Ctx, locationCollection *mongo.Collection, ownerID st
 		locations = append(locations, loc)
 
 	}
-
-	// // iterate over the cursor and decode the data
-	// err = cursor.All(context.TODO(), &locations)
-	// if err != nil {
-	// 	return nil, errors.New("Error getting locations")
-	// }
 
 	cursor.Close(context.TODO())
 
