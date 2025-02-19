@@ -4,7 +4,6 @@ import (
 	"example/web-server/config"
 	"example/web-server/models"
 	"example/web-server/utils"
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -36,7 +35,6 @@ func DetailViewOrganizationController(c *fiber.Ctx) error {
 		// get the organization from the model
 		organization, err := models.GetOrganization(c, organizationCollection, organizationID)
 		if err != nil {
-			fmt.Println("Error getting organization: ", err.Error())
 			// add error msg to the argumentsMap
 			(*argumentsMap)["Error"] = "Error getting Organization"
 			(*argumentsMap)["Title"] = "Error - Resource Not Found"
@@ -183,22 +181,223 @@ func AddOrganizationPostController(c *fiber.Ctx) error {
 
 func EditOrganizationController(c *fiber.Ctx) error {
 
-	return nil
+	// get edit slug parameter id
+	organizationID := c.Params("id")
+
+	// make the arguments map structure
+	argumentsMap := &fiber.Map{
+		"Title": "Edit Organization",
+	}
+
+	// add the Authenticated flag to the argumentsMap using http headers
+	(*argumentsMap)["IsAuthenticated"] = string(c.Request().Header.Peek("Authenticated")) == "true"
+
+	// get the user id from the Locals
+	userID := c.Locals("userID").(string)
+
+	// get the mongo client and collection for organizations
+	mongoClient, organizationCollection, err := models.GetOrganizationCollection()
+	if err != nil {
+		// add error msg to the argumentsMap
+		(*argumentsMap)["Error"] = "Error getting organization collection"
+	} else {
+		// get the organization from the model
+		organization, err := models.GetOrganization(c, organizationCollection, organizationID)
+		if err != nil {
+			// add error msg to the argumentsMap
+			(*argumentsMap)["Error"] = "Error getting Organization"
+			(*argumentsMap)["Title"] = "Error - Resource Not Found"
+		} else {
+			// check if the user is the owner of the organization
+			if organization.OwnerID != userID {
+				// add error msg to the argumentsMap
+				(*argumentsMap)["Error"] = "You are not the owner of the organization"
+				(*argumentsMap)["Title"] = "Error - Unauthorized"
+			} else {
+				// add the organization to the argumentsMap
+				(*argumentsMap)["Organization"] = organization
+			}
+		}
+	}
+
+	// close the mongo client
+	config.CloseMongoClientConnection(mongoClient)
+
+	return utils.CustomRenderTemplate(c, "organization/edit", *argumentsMap)
 }
 
 func EditOrganizationPostController(c *fiber.Ctx) error {
 
-	return nil
+	// return nil
+	// Get the form data from api json
+	var newName string
+
+	// get edit slug parameter id
+	organizationID := c.Params("id")
+	if organizationID == "" {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Could not find the organization",
+		})
+	}
+
+	// convert the reqBody to a map
+	formData := make(map[string]string)
+	err := c.BodyParser(&formData)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid form data",
+		})
+	}
+
+	newName = formData["name"]
+	if newName == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid new name",
+		})
+	}
+
+	// get the owner id from the Local
+	ownerID := c.Locals("userID").(string)
+
+	// get the mongo collection and client for organizations
+	mongoClient, organizationCollection, err := models.GetOrganizationCollection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting organization collection",
+		})
+	}
+
+	// get the organization from the model
+	organization, err := models.GetOrganization(c, organizationCollection, organizationID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting organization",
+		})
+	}
+
+	// if ownerID is not the owner of the organization
+	if organization.OwnerID != ownerID {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "You are not the owner of the organization",
+		})
+	}
+
+	// add the new name to the organization
+	organization.Name = newName
+
+	// run the model function update organization
+	err = models.UpdateOrganization(c, organizationCollection, organization)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error updating organization",
+		})
+	}
+
+	// close the client connection
+	config.CloseMongoClientConnection(mongoClient)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Organization updated successfully",
+	})
 }
 
 func DeleteOrganizationController(c *fiber.Ctx) error {
 
-	return nil
+	// get edit slug parameter id
+	organizationID := c.Params("id")
+
+	// make the arguments map structure
+	argumentsMap := &fiber.Map{
+		"Title": "Edit Organization",
+	}
+
+	// add the Authenticated flag to the argumentsMap using http headers
+	(*argumentsMap)["IsAuthenticated"] = string(c.Request().Header.Peek("Authenticated")) == "true"
+
+	// get the user id from the Locals
+	userID := c.Locals("userID").(string)
+
+	// get the mongo client and collection for organizations
+	mongoClient, organizationCollection, err := models.GetOrganizationCollection()
+	if err != nil {
+		// add error msg to the argumentsMap
+		(*argumentsMap)["Error"] = "Error getting organization collection"
+	} else {
+		// get the organization from the model
+		organization, err := models.GetOrganization(c, organizationCollection, organizationID)
+		if err != nil {
+			// add error msg to the argumentsMap
+			(*argumentsMap)["Error"] = "Error getting Organization"
+			(*argumentsMap)["Title"] = "Error - Resource Not Found"
+		} else {
+			// check if the user is the owner of the organization
+			if organization.OwnerID != userID {
+				// add error msg to the argumentsMap
+				(*argumentsMap)["Error"] = "You are not the owner of the organization"
+				(*argumentsMap)["Title"] = "Error - Unauthorized"
+			} else {
+				// add the organization to the argumentsMap
+				(*argumentsMap)["Organization"] = organization
+			}
+		}
+	}
+
+	// close the mongo client
+	config.CloseMongoClientConnection(mongoClient)
+
+	return utils.CustomRenderTemplate(c, "organization/delete", *argumentsMap)
 }
 
 func DeleteOrganizationPostController(c *fiber.Ctx) error {
 
-	return nil
+	// get edit slug parameter id
+	organizationID := c.Params("id")
+	if organizationID == "" {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Could not find the organization",
+		})
+	}
+
+	// get the owner id from the Local
+	ownerID := c.Locals("userID").(string)
+
+	// get the mongo collection and client for organizations
+	mongoClient, organizationCollection, err := models.GetOrganizationCollection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting organization collection",
+		})
+	}
+
+	// get the organization from the model
+	organization, err := models.GetOrganization(c, organizationCollection, organizationID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error getting organization",
+		})
+	}
+
+	// if ownerID is not the owner of the organization
+	if organization.OwnerID != ownerID {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message": "You are not the owner of the organization",
+		})
+	}
+
+	// delete the organization
+	err = models.DeleteOrganization(c, organizationCollection, organization)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error deleting organization",
+		})
+	}
+
+	// close the client connection
+	config.CloseMongoClientConnection(mongoClient)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Organization updated successfully",
+	})
 }
 
 func ListViewOrganizationsController(c *fiber.Ctx) error {

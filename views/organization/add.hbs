@@ -1,32 +1,22 @@
 {{> 'partials/header' }}
 
 <title>Online Booking System - {{Title}}</title>
-{{!-- 
-type Organization struct {
-	ID        string     `json:"id" bson:"_id"`
-	Name      string     `json:"name" bson:"name"`
-	CreatedAt time.Time  `json:"createdAt" bson:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt" bson:"updatedAt"`
-	OwnerID   string     `json:"ownerID" bson:"ownerID"`
-	Locations []Location `json:"locations" bson:"locations"`
-}
- --}}
 <main>
     <h1>{{Title}}</h1>
     <section id="top-profile-wrapper" class="">
-        <a href="/organizations" class="btn btn-primary">Back to Organizations</a>
-        <form id="add-organization-form" class="add-organization-form" action="/organizations/add" method="POST">
+        <a href="/organizations" class="">Back to Organizations</a>
+        <form id="add-organization-form" class="" action="/organizations/add" method="POST">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" placeholder="Organization name" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">Add Organization</button>
+            <button type="submit" class="">Add Organization</button>
         </form>
     </section>
     
     {{!-- display form errors --}}
-    <section id="form-errors" class="form-errors">
+    <section id="form-errors" class="">
         <ul>
             {{!-- errors convert stringified array to array --}}
             {{#each Errors}}
@@ -36,7 +26,7 @@ type Organization struct {
     </section>
 
     {{!-- display success message --}}
-    <section id="success-message" class="success-message">
+    <section id="success-message" class="">
         {{#if Success}}
             <p>Organizations created successfully</p>
             <p>Redirecting to organizations page...</p>

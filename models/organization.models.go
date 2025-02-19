@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"example/web-server/config"
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -75,13 +74,12 @@ func CreateOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, 
 }
 
 // - GetOrganization
-func GetOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, id string) (*Organization, error) {
+func GetOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, organizationID string) (*Organization, error) {
 	// find the organization by id
 	var org Organization
 	// parse the id string to a primitive.ObjectID
-	objectID, err := primitive.ObjectIDFromHex(id)
+	objectID, err := primitive.ObjectIDFromHex(organizationID)
 	if err != nil {
-		fmt.Println(err.Error())
 		return nil, errors.New("Error parsing object id")
 	}
 	err = organizationCollection.FindOne(context.TODO(), bson.M{"_id": objectID}).Decode(&org)
@@ -97,14 +95,9 @@ func GetOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, id 
 
 // - UpdateOrganization
 func UpdateOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, org *Organization) error {
-	// first get the organization by id
-	_, err := GetOrganization(c, organizationCollection, org.ID.String())
-	if err != nil {
-		return errors.New("Organization not found")
-	}
 
 	// update the organization
-	_, err = organizationCollection.UpdateOne(c.Context(), bson.M{"_id": org.ID}, bson.M{"$set": org})
+	_, err := organizationCollection.UpdateOne(c.Context(), bson.M{"_id": org.ID}, bson.M{"$set": org})
 	if err != nil {
 		return errors.New("Error updating organization")
 	}
@@ -113,16 +106,9 @@ func UpdateOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, 
 }
 
 // - DeleteOrganization
-func DeleteOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, id string) error {
-
-	// first get the organization by id
-	_, err := GetOrganization(c, organizationCollection, id)
-	if err != nil {
-		return errors.New("Organization not found")
-	}
-
+func DeleteOrganization(c *fiber.Ctx, organizationCollection *mongo.Collection, org *Organization) error {
 	// delete the organization
-	_, err = organizationCollection.DeleteOne(c.Context(), bson.M{"_id": id})
+	_, err := organizationCollection.DeleteOne(context.TODO(), bson.M{"_id": org.ID})
 	if err != nil {
 		return errors.New("Error deleting organization")
 	}
@@ -167,11 +153,6 @@ func GetOrganizations(c *fiber.Ctx, organizationCollection *mongo.Collection, ow
 		org.IDString = org.ID.Hex()
 		orgs = append(orgs, org)
 	}
-
-	// err = cursor.All(context.TODO(), &orgs)
-	// if err != nil {
-	// 	return nil, errors.New("Error getting organizations")
-	// }
 
 	cursor.Close(context.TODO())
 

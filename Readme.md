@@ -85,7 +85,7 @@ npm run sass # for compiling into production css code without listening to chang
 
 ### 5. Run the Application  
 ```sh
-go run main.go
+go run server.go
 ```
 The server should start at **`http://localhost:8080`**.
 
