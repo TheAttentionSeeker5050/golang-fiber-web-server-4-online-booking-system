@@ -6,8 +6,8 @@
     <h1>{{Title}}</h1>
     <section id="top-profile-wrapper" class="">
         <a href="/organizations" class="">Back to Organizations</a>
-        <h2>Editing {{Organization.Name}}</h2>
-        <form id="edit-organization-form" class="" action="/organizations/edit/{{Organization.IDString}}" method="POST">
+        <p>Editing {{Organization.Name}}</p>
+        <form id="edit-organization-form" class="base-crud-form" action="/organizations/edit/{{Organization.IDString}}" method="POST">
             <div class="form-group">
                 <label for="name">New Name</label>
                 <input type="text" id="name" name="name" placeholder="Organization name" required>

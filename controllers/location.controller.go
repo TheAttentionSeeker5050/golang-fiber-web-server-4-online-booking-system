@@ -172,8 +172,13 @@ func AddLocationPostController(c *fiber.Ctx) error {
 
 func EditLocationController(c *fiber.Ctx) error {
 
-	// For now return a dummy page
-	return c.SendString("Edit Location")
+	// create the arguments map
+	argumentsMap := &fiber.Map{
+		"Title": "Edit Location",
+	}
+
+	// For now return the page
+	return utils.CustomRenderTemplate(c, "location/edit", *argumentsMap)
 }
 
 func EditLocationPostController(c *fiber.Ctx) error {
@@ -183,9 +188,13 @@ func EditLocationPostController(c *fiber.Ctx) error {
 }
 
 func DeleteLocationController(c *fiber.Ctx) error {
+	// create the arguments map
+	argumentsMap := &fiber.Map{
+		"Title": "Delete Location",
+	}
 
-	// For now return a redirect to the Location details page
-	return c.SendString("Delete Location")
+	// For now return the page
+	return utils.CustomRenderTemplate(c, "location/delete", *argumentsMap)
 }
 
 func DeleteLocationPostController(c *fiber.Ctx) error {

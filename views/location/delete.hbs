@@ -1,0 +1,30 @@
+{{> 'partials/header' }}
+
+<title>Online Booking System - {{Title}}</title>
+
+<main>
+    <h1>{{Title}}</h1>
+    <section id="top-profile-wrapper" class="">
+        <a href="/locations" class="">Back to Locations</a>
+        <form id="delete-location-form" class="base-crud-form" action="/locations/locations/{{Location.IDString}}" method="POST">
+            <span>
+                Are you sure you want to delete this location ({{Location.Name}})?
+            </span>
+            <a href="/locations" class="">No</a>
+            <button type="submit" class="">Yes</button>
+        </form>
+    </section>
+    
+    {{!-- display form errors --}}
+    <section id="form-errors" class="">
+    </section>
+
+    {{!-- display success message --}}
+    <section id="success-message" class="">
+    </section>
+</main>
+
+<script src="/public/js/zepto.min.js"></script>
+<script type="module" src="/public/js/process-crud-form.js"></script>
+
+{{> 'partials/footer' }}

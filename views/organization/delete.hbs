@@ -6,7 +6,7 @@
     <h1>{{Title}}</h1>
     <section id="top-profile-wrapper" class="">
         <a href="/organizations" class="">Back to Organizations</a>
-        <form id="delete-organization-form" class="" action="/organizations/delete/{{Organization.IDString}}" method="POST">
+        <form id="delete-organization-form" class="base-crud-form" action="/organizations/delete/{{Organization.IDString}}" method="POST">
             <span>
                 Are you sure you want to delete this organization ({{Organization.Name}})?
             </span>

@@ -4,7 +4,7 @@
     <h1>{{Title}}</h1>
     <section id="top-profile-wrapper" class="">
         <a href="/locations" class="btn btn-primary">Back to Locations</a>
-        <form id="add-location-form" class="add-location-form" action="/locations/add" method="POST">
+        <form id="add-location-form" class="base-crud-form" action="/locations/add" method="POST">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" placeholder="Location name" required>
@@ -82,6 +82,7 @@
     </section>
 </main>
 
-{{!-- <script src="/public/js/zepto.min.js"></script> --}}
+<script src="/public/js/zepto.min.js"></script>
+<script type="module" src="/public/js/process-crud-form.js"></script>
 
 {{> 'partials/footer' }}
